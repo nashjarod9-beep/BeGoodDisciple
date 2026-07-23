@@ -37,6 +37,23 @@ enum ReportStatus {
   REVIEWED
 }
 
+// Report Period Frequencies
+enum CompteRenduType {
+  HEBDO
+  MENSUEL
+  TRIMESTRIEL
+  SEMESTRIEL
+  ANNUEL
+}
+
+// Delivery Status for Reports
+enum StatutEnvoi {
+  BROUILLON
+  ENVOYE
+  ERREUR
+  REVU
+}
+
 // 12 Annual Objective Category Types
 enum CategorieType {
   PRIERE_PERSONNELLE
@@ -74,6 +91,8 @@ model User {
   // Annual Objectives, Daily Tracking & Reports
   objectifsAnnuels    ObjectifAnnuel[]
   suivisQuotidiens    SuiviQuotidien[]
+  comptesRendus       CompteRendu[]        @relation("DiscipleCompteRendu")
+  receivedComptes     CompteRendu[]        @relation("MentorCompteRendu")
   sentReports         Report[]             @relation("DiscipleReports")
   receivedReports     Report[]             @relation("MentorReports")
 }
@@ -125,8 +144,8 @@ model SuiviQuotidien {
   id              String         @id @default(uuid())
   userId          String
   user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date            String         // Date string format YYYY-MM-DD
-  completionScore Int            @default(0) // Completed blocks percentage or count
+  date            String
+  completionScore Int            @default(0)
   totalBlocks     Int            @default(0)
   isCompleted     Boolean        @default(false)
   entrees         EntreeSuivi[]
@@ -142,8 +161,29 @@ model EntreeSuivi {
   suiviQuotidienId   String
   suiviQuotidien     SuiviQuotidien @relation(fields: [suiviQuotidienId], references: [id], onDelete: Cascade)
   categorie          CategorieType
-  data               Json           // Flexible JSON storing entry data (e.g. { prayerMinutes: 45, burden: "Sagesse" })
+  data               Json
   dateEnregistrement DateTime       @default(now())
+}
+
+// Consolidated Spiritual Progress Report
+model CompteRendu {
+  id                  String          @id @default(uuid())
+  discipleId          String
+  disciple            User            @relation("DiscipleCompteRendu", fields: [discipleId], references: [id], onDelete: Cascade)
+  mentorId            String?
+  mentor              User?           @relation("MentorCompteRendu", fields: [mentorId], references: [id], onDelete: SetNull)
+  mentorEmail         String
+  type                CompteRenduType
+  titre               String          // e.g. "Compte rendu de la semaine du 14 au 20 juillet 2026"
+  dateDebut           DateTime
+  dateFin             DateTime
+  contenuAgrege       Json            // Aggregated daily metrics payload
+  reponsesSpecifiques Json            // Period-specific answers payload
+  urlPdf              String?
+  dateEnvoi           DateTime?
+  statutEnvoi         StatutEnvoi     @default(BROUILLON)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
 }
 
 model Report {

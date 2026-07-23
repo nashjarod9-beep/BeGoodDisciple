@@ -2,6 +2,9 @@ export type UserRole = "DISCIPLE" | "FAISEUR_DE_DISCIPLE" | "ADMIN";
 export type StatutRelation = "ACTIF" | "INACTIF";
 export type FrequenceCompteRendu = "HEBDOMADAIRE" | "MENSUEL";
 
+export type CompteRenduType = "HEBDO" | "MENSUEL" | "TRIMESTRIEL" | "SEMESTRIEL" | "ANNUEL";
+export type StatutEnvoi = "BROUILLON" | "ENVOYE" | "ERREUR" | "REVU";
+
 export type CategorieType =
   | "PRIERE_PERSONNELLE"
   | "PRIERE_DE_GROUPE"
@@ -52,16 +55,72 @@ export interface FullObjectivesConfig {
   custom: { enabled: boolean; items: CustomGoalItem[] };
 }
 
-// Daily Entry JSON payloads for each category
+// Period-Specific Questions Answers
+export interface PeriodQuestionsPayload {
+  // Weekly Questions
+  gaveTithe: boolean; // Dîme / offrande
+  gaveGalates6: boolean; // Don Galates 6
+  visitedBrethren: boolean; // Visite pastorale
+  visitedComment?: string;
+  listenedTeachings: boolean;
+  completedBook: boolean;
+  completedBookTitle?: string;
+  completedBookAuthor?: string;
+  tookRetreat: boolean;
+  retreatDetails?: { day: string; duration: string; mainBurdens: string };
+  // Monthly / Period Questions
+  wonSoulToChrist?: boolean; // Âme conduite à Christ & baptisée
+  wonSoulComment?: string;
+  // Missed donation recommendation
+  donationRecommendationMessage?: string;
+}
+
+// Aggregated Data Metrics for a Period
+export interface AggregatedMetricsPayload {
+  totalPrayerMinutes: number;
+  totalPrayerHoursFormatted: string;
+  prayerBurdens: string[];
+  groupPrayerAttendanceCount: number;
+  totalChaptersRead: number;
+  totalMeditationMinutes: number;
+  totalPeopleEvangelized: number;
+  distributedTracts: boolean;
+  totalPagesRead: number;
+  completedBooksList: Array<{ title: string; author?: string }>;
+  pastoralVisitsCount: number;
+  teachingsCount: number;
+  overallScorePercentage: number;
+  daysLoggedCount: number;
+  totalDaysInPeriod: number;
+}
+
+export interface CompteRenduFullData {
+  id: string;
+  discipleId: string;
+  discipleName: string;
+  mentorEmail: string;
+  type: CompteRenduType;
+  titre: string;
+  dateDebut: string;
+  dateFin: string;
+  contenuAgrege: AggregatedMetricsPayload;
+  reponsesSpecifiques: PeriodQuestionsPayload;
+  urlPdf?: string | null;
+  dateEnvoi?: string | null;
+  statutEnvoi: StatutEnvoi;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface DailyTrackingEntriesData {
   prierePersonnelle?: { minutes: number; burden?: string };
-  priereDeGroupe?: Record<string, boolean>; // eventId -> attended boolean
+  priereDeGroupe?: Record<string, boolean>;
   lectureBiblique?: { chaptersRead: number };
   meditation?: { minutes: number };
   evangelisation?: { peopleCount: number; tractsDistributed?: boolean; tractsCount?: number };
   litteratureChretienne?: { pagesRead: number; currentBookTitle?: string; bookCompletedThisWeek?: boolean; completedBookTitle?: string; completedBookAuthor?: string };
-  caractere?: Record<string, { value: string | number | boolean }>; // axisId -> value
-  custom?: Record<string, { value: string | number | boolean }>; // customId -> value
+  caractere?: Record<string, { value: string | number | boolean }>;
+  custom?: Record<string, { value: string | number | boolean }>;
   retraitesSpirituelles?: { attended: boolean; notes?: string };
   donsOffrandes?: { tithePaid?: boolean; galates6Given?: boolean };
   visitesPastorales?: { visitsCount: number };
@@ -71,7 +130,7 @@ export interface DailyTrackingEntriesData {
 export interface SuiviQuotidienData {
   id: string;
   userId: string;
-  date: string; // YYYY-MM-DD
+  date: string;
   completionScore: number;
   totalBlocks: number;
   isCompleted: boolean;
