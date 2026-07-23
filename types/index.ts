@@ -18,26 +18,25 @@ export type CategorieType =
 
 export interface GroupPrayerEvent {
   id: string;
-  name: string; // e.g. "Nuit de prière", "Cellule de maison", "Prière du dimanche"
-  dayOfWeek: string; // e.g. "Vendredi", "Dimanche"
-  time?: string; // e.g. "21h00"
+  name: string;
+  dayOfWeek: string;
+  time?: string;
 }
 
 export interface CharacterAxis {
   id: string;
-  name: string; // e.g. "Sommeil", "Discipline & Concentration", "Maitrise de soi"
-  targetGoal: string; // e.g. "7 heures par nuit", "0 distraction pendant les études"
+  name: string;
+  targetGoal: string;
 }
 
 export interface CustomGoalItem {
   id: string;
-  title: string; // e.g. "Études", "Travail", "Sport"
-  question: string; // e.g. "As-tu étudié 2h aujourd'hui ?"
+  title: string;
+  question: string;
   frequency: "daily" | "weekly";
   responseType: "boolean" | "number" | "text";
 }
 
-// JSON Payload Config for Each Category
 export interface FullObjectivesConfig {
   prierePersonnelle: { enabled: boolean; dailyMinutes: number };
   priereDeGroupe: { enabled: boolean; events: GroupPrayerEvent[] };
@@ -51,6 +50,34 @@ export interface FullObjectivesConfig {
   enseignements: { enabled: boolean; weeklyTeachingsCount: number };
   caractere: { enabled: boolean; axes: CharacterAxis[] };
   custom: { enabled: boolean; items: CustomGoalItem[] };
+}
+
+// Daily Entry JSON payloads for each category
+export interface DailyTrackingEntriesData {
+  prierePersonnelle?: { minutes: number; burden?: string };
+  priereDeGroupe?: Record<string, boolean>; // eventId -> attended boolean
+  lectureBiblique?: { chaptersRead: number };
+  meditation?: { minutes: number };
+  evangelisation?: { peopleCount: number; tractsDistributed?: boolean; tractsCount?: number };
+  litteratureChretienne?: { pagesRead: number; currentBookTitle?: string; bookCompletedThisWeek?: boolean; completedBookTitle?: string; completedBookAuthor?: string };
+  caractere?: Record<string, { value: string | number | boolean }>; // axisId -> value
+  custom?: Record<string, { value: string | number | boolean }>; // customId -> value
+  retraitesSpirituelles?: { attended: boolean; notes?: string };
+  donsOffrandes?: { tithePaid?: boolean; galates6Given?: boolean };
+  visitesPastorales?: { visitsCount: number };
+  enseignements?: { teachingsCount: number };
+}
+
+export interface SuiviQuotidienData {
+  id: string;
+  userId: string;
+  date: string; // YYYY-MM-DD
+  completionScore: number;
+  totalBlocks: number;
+  isCompleted: boolean;
+  entrees: DailyTrackingEntriesData;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ObjectifCategorieData {

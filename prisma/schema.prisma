@@ -71,8 +71,9 @@ model User {
   discipleRelations   RelationDiscipolat[] @relation("DiscipleRelations")
   mentorRelations     RelationDiscipolat[] @relation("MentorRelations")
 
-  // Annual Objectives & Reports
+  // Annual Objectives, Daily Tracking & Reports
   objectifsAnnuels    ObjectifAnnuel[]
+  suivisQuotidiens    SuiviQuotidien[]
   sentReports         Report[]             @relation("DiscipleReports")
   receivedReports     Report[]             @relation("MentorReports")
 }
@@ -114,9 +115,35 @@ model ObjectifCategorie {
   objectifAnnuelId String
   objectifAnnuel   ObjectifAnnuel @relation(fields: [objectifAnnuelId], references: [id], onDelete: Cascade)
   type             CategorieType
-  config           Json           // Flexible JSON storing target values, frequencies, custom questions & types
+  config           Json
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+}
+
+// Daily Tracking Record for a given date (YYYY-MM-DD)
+model SuiviQuotidien {
+  id              String         @id @default(uuid())
+  userId          String
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date            String         // Date string format YYYY-MM-DD
+  completionScore Int            @default(0) // Completed blocks percentage or count
+  totalBlocks     Int            @default(0)
+  isCompleted     Boolean        @default(false)
+  entrees         EntreeSuivi[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([userId, date])
+}
+
+// Category Entry for a specific day
+model EntreeSuivi {
+  id                 String         @id @default(uuid())
+  suiviQuotidienId   String
+  suiviQuotidien     SuiviQuotidien @relation(fields: [suiviQuotidienId], references: [id], onDelete: Cascade)
+  categorie          CategorieType
+  data               Json           // Flexible JSON storing entry data (e.g. { prayerMinutes: 45, burden: "Sagesse" })
+  dateEnregistrement DateTime       @default(now())
 }
 
 model Report {
