@@ -818,7 +818,45 @@ export const ObjectivesWizardModal: React.FC<ObjectivesWizardModalProps> = ({
 
                 {/* Form to add axis */}
                 <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-100 space-y-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-blue-900">Ajouter un axe de travail</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold uppercase tracking-wider text-blue-900">Ajouter un axe de travail</p>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const res = await fetch("/api/ai/suggestions", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              existingAxes: config.caractere.axes.map((a) => a.name),
+                            }),
+                          });
+                          const data = await res.json();
+                          if (data.suggestions && data.suggestions.length > 0) {
+                            const newAxes: CharacterAxis[] = data.suggestions.map((s: any, idx: number) => ({
+                              id: `ax-ai-${Date.now()}-${idx}`,
+                              name: s.name,
+                              targetGoal: s.targetGoal,
+                            }));
+                            setConfig({
+                              ...config,
+                              caractere: {
+                                ...config.caractere,
+                                axes: [...config.caractere.axes, ...newAxes],
+                              },
+                            });
+                          }
+                        } catch {
+                          // fallback
+                        }
+                      }}
+                      className="text-xs font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 border border-amber-300 px-3 py-1 rounded-full flex items-center gap-1.5 transition-colors"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 fill-amber-600 text-amber-700" />
+                      <span>Suggérer des axes par l'IA</span>
+                    </button>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <input
                       type="text"

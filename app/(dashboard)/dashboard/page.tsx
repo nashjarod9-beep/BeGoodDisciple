@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Flame,
@@ -12,31 +12,76 @@ import {
   CheckCircle2,
   FileCheck,
   Sparkles,
+  HeartHandshake,
+  Lightbulb,
 } from "lucide-react";
 import { Card, StatCard, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { CircularProgressBar, LinearProgressBar } from "@/components/ui/ProgressBar";
 import { Badge } from "@/components/ui/Badge";
+import { BgdAssistantChat } from "@/components/ai/BgdAssistantChat";
+import { getCurrentUserSession } from "@/lib/auth-service";
 
 export default function DashboardOverviewPage() {
+  const [userSession, setUserSession] = useState<any>(null);
+  const [aiEncouragement, setAiEncouragement] = useState<string>("");
+  const [aiTrendAlert, setAiTrendAlert] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    const session = getCurrentUserSession();
+    setUserSession(session);
+
+    // Fetch dynamic AI Pastoral Encouragement & Trend Detection
+    const fetchAiEncouragement = async () => {
+      try {
+        const res = await fetch("/api/ai/encouragement", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            firstName: session?.firstName || "Jean",
+            streakDays: 12,
+            weeklyScore: 92,
+          }),
+        });
+
+        const data = await res.json();
+        setAiEncouragement(data.encouragement);
+        setAiTrendAlert(data.trendAlert);
+      } catch {
+        setAiEncouragement(
+          `Que la grâce du Seigneur t'accompagne aujourd'hui, ${session?.firstName || "Jean"} ! Ta régularité dans la prière et la méditation porte du fruit jour après jour.`
+        );
+      }
+    };
+
+    fetchAiEncouragement();
+  }, []);
+
+  const discipleFirstName = userSession?.firstName || "Jean";
+
   return (
-    <div className="space-y-8">
-      {/* WELCOME BANNER WITH SPIRITUAL QUOTE */}
+    <div className="space-y-8 relative">
+      {/* WELCOME BANNER WITH SPIRITUAL QUOTE & AI ENCOURAGEMENT */}
       <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-950 text-white p-6 sm:p-8 shadow-xl shadow-blue-950/15">
         <div className="absolute top-0 right-0 w-80 h-80 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
         
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-800/80 border border-blue-700/80 text-amber-300 text-xs font-semibold">
               <Sparkles className="w-3.5 h-3.5 fill-amber-300" />
               <span>Série spirituelle : 12 jours d'affilée</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold font-heading tracking-tight">
-              Bienvenue, Jean Disciple !
+              Bienvenue, {discipleFirstName} !
             </h2>
-            <p className="text-xs sm:text-sm text-blue-200 italic max-w-2xl">
-              « Ta parole est une lampe à mes pieds, Et une lumière sur mon sentier. » — Psaume 119:105
-            </p>
+
+            {/* USE CASE 2: AI DYNAMIC PASTORAL ENCOURAGEMENT BANNER */}
+            <div className="p-3.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm text-amber-100 flex items-start gap-2.5 max-w-2xl">
+              <HeartHandshake className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+              <p className="italic font-medium">
+                "{aiEncouragement || "Chargement de la pensée pastorale IA..."}"
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
@@ -52,6 +97,14 @@ export default function DashboardOverviewPage() {
           </div>
         </div>
       </div>
+
+      {/* USE CASE 3: AI SOFT TREND ALERT DETECTOR */}
+      {aiTrendAlert && (
+        <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 text-xs font-medium flex items-center gap-3 shadow-sm animate-in fade-in">
+          <Lightbulb className="w-5 h-5 text-amber-600 shrink-0" />
+          <div>{aiTrendAlert}</div>
+        </div>
+      )}
 
       {/* STAT CARDS GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -85,7 +138,7 @@ export default function DashboardOverviewPage() {
         <StatCard
           title="Comptes Rendus FD"
           value="4 Envoyés"
-          subtitle="Mentor : Past. Paul"
+          subtitle={`Mentor : ${userSession?.activeMentorEmail || "Past. Paul"}`}
           variant="slate"
           icon={<Send className="w-6 h-6" />}
         />
@@ -169,7 +222,6 @@ export default function DashboardOverviewPage() {
         </CardHeader>
 
         <CardContent className="space-y-3 pt-2">
-          {/* Item 1 */}
           <div className="p-4 rounded-xl bg-white border border-slate-100 hover:border-blue-200 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600">
@@ -179,43 +231,25 @@ export default function DashboardOverviewPage() {
                 <h4 className="text-sm font-bold text-slate-900 font-heading">
                   Compte Rendu Spirituel - Semaine du 15 au 21 Juillet
                 </h4>
-                <p className="text-xs text-slate-500">Mentor : Past. Paul • Note globale : 8.8/10</p>
+                <p className="text-xs text-slate-500">Mentor : {userSession?.activeMentorEmail || "Past. Paul"} • Note globale : 8.8/10</p>
               </div>
             </div>
             <div className="flex items-center gap-3 shrink-0">
               <Badge variant="reviewed" size="md">
                 Revu par le FD
               </Badge>
-              <Button variant="ghost" size="sm">
-                Consulter
-              </Button>
-            </div>
-          </div>
-
-          {/* Item 2 */}
-          <div className="p-4 rounded-xl bg-white border border-slate-100 hover:border-blue-200 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600">
-                <Send className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-900 font-heading">
-                  Compte Rendu Spirituel - Semaine du 8 au 14 Juillet
-                </h4>
-                <p className="text-xs text-slate-500">Mentor : Past. Paul • Transmis le 14/07/2026</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <Badge variant="sent" size="md">
-                Transmis
-              </Badge>
-              <Button variant="ghost" size="sm">
-                Consulter
-              </Button>
+              <Link href="/comptes-rendus">
+                <Button variant="ghost" size="sm">
+                  Consulter
+                </Button>
+              </Link>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* USE CASE 5: ASSISTANT BGD FLOATING CONVERSATIONAL AI CHAT WIDGET */}
+      <BgdAssistantChat />
     </div>
   );
 }

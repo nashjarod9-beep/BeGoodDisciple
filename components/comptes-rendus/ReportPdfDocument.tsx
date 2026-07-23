@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BgdLogo } from "../shared/BgdLogo";
 import { CompteRenduFullData } from "@/types";
 import { Button } from "../ui/Button";
-import { Printer, Download, ArrowLeft } from "lucide-react";
+import { Printer, ArrowLeft, Sparkles } from "lucide-react";
 
 interface ReportPdfDocumentProps {
   report: CompteRenduFullData;
@@ -15,6 +15,42 @@ export const ReportPdfDocument: React.FC<ReportPdfDocumentProps> = ({
   report,
   onBack,
 }) => {
+  const [aiSummary, setAiSummary] = useState<string>("");
+
+  useEffect(() => {
+    // Generate or retrieve cached AI qualitative summary
+    const fetchSummary = async () => {
+      try {
+        const res = await fetch("/api/ai/summary", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            discipleName: report.discipleName,
+            reportType: report.type,
+            titre: report.titre,
+            totalPrayerHours: report.contenuAgrege.totalPrayerHoursFormatted,
+            chaptersRead: report.contenuAgrege.totalChaptersRead,
+            evangelizedCount: report.contenuAgrege.totalPeopleEvangelized,
+            completionScore: report.contenuAgrege.overallScorePercentage,
+            burdens: report.contenuAgrege.prayerBurdens,
+          }),
+        });
+
+        const data = await res.json();
+        setAiSummary(
+          data.summary ||
+            `Cher(e) ${report.discipleName}, nous rendons grâce pour ton engagement spirituel durant cette période. Tes ${report.contenuAgrege.totalPrayerHoursFormatted} de prière et tes ${report.contenuAgrege.totalChaptersRead} chapitres bibliques lus témoignent d'un cœur désireux de grandir dans l'intimité du Seigneur.`
+        );
+      } catch {
+        setAiSummary(
+          `Cher(e) ${report.discipleName}, nous rendons grâce pour ton engagement spirituel durant cette période. Tes ${report.contenuAgrege.totalPrayerHoursFormatted} de prière témoignent de ta fidélité. Continue d'avancer avec joie.`
+        );
+      }
+    };
+
+    fetchSummary();
+  }, [report]);
+
   const handlePrint = () => {
     window.print();
   };
@@ -72,6 +108,17 @@ export const ReportPdfDocument: React.FC<ReportPdfDocumentProps> = ({
               {report.mentorEmail}
             </strong>
           </div>
+        </div>
+
+        {/* USE CASE 1: QUALITATIVE AI SUMMARY BOX (Top of PDF) */}
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-50/90 via-blue-50/70 to-white border border-amber-200 shadow-sm space-y-2">
+          <div className="flex items-center gap-2 text-amber-900 font-bold font-heading text-xs uppercase tracking-wider">
+            <Sparkles className="w-4 h-4 text-amber-600 fill-amber-500" />
+            <span>Synthèse & Encouragement Pastoral (IA DeepSeek)</span>
+          </div>
+          <p className="text-xs sm:text-sm text-slate-700 leading-relaxed italic font-medium">
+            "{aiSummary || "Analyse et encouragements spirituels en cours de génération..."}"
+          </p>
         </div>
 
         {/* Aggregate Metrics Grid */}
@@ -160,24 +207,6 @@ export const ReportPdfDocument: React.FC<ReportPdfDocumentProps> = ({
               </strong>
             </div>
           </div>
-
-          {reponsesSpecifiques.completedBook && reponsesSpecifiques.completedBookTitle && (
-            <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-950 font-medium">
-              📖 <strong>Livre terminé cette période :</strong> « {reponsesSpecifiques.completedBookTitle} » {reponsesSpecifiques.completedBookAuthor ? `par ${reponsesSpecifiques.completedBookAuthor}` : ""}
-            </div>
-          )}
-
-          {reponsesSpecifiques.wonSoulToChrist && (
-            <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 font-medium">
-              🕊️ <strong>Âme conduite à Christ & baptisée :</strong> {reponsesSpecifiques.wonSoulComment || "Oui, suivie en cellule d'accueil."}
-            </div>
-          )}
-
-          {reponsesSpecifiques.donationRecommendationMessage && (
-            <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 font-medium">
-              💡 <strong>Recommandation BGD :</strong> {reponsesSpecifiques.donationRecommendationMessage}
-            </div>
-          )}
         </div>
 
         {/* Mentor (FD) Feedback Section */}
@@ -186,13 +215,13 @@ export const ReportPdfDocument: React.FC<ReportPdfDocumentProps> = ({
             4. Espace de Retour & Bénédiction du Mentor (FD)
           </h4>
           <div className="h-24 bg-white rounded-xl border border-blue-200 p-3 text-xs text-slate-500 italic">
-            [ Espace réservé à l'analyse, aux conseils spirituels et à la prière de bénédiction de {report.mentorEmail} ]
+            [ Espace réservé aux conseils spirituels et prières du mentor {report.mentorEmail} ]
           </div>
         </div>
 
         {/* Document Footer */}
         <div className="pt-4 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400">
-          <span>Généré par BeGoodDisciple (BGD) • Plateforme SaaS de Redevabilité Spirituelle</span>
+          <span>Généré par BeGoodDisciple (BGD) • Intelligence Artificielle DeepSeek</span>
           <span>Imprimé le {new Date().toLocaleDateString("fr-FR")}</span>
         </div>
       </div>
