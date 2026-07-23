@@ -25,7 +25,7 @@ export async function callDeepSeekAPI(
   fallbackText: string,
   temperature: number = 0.7
 ): Promise<string> {
-  const apiKey = process.env.DEEPSEEK_API_KEY || "sk-5fcbe8e40a9c41c9af707943f8cd6e72";
+  const apiKey = process.env.DEEPSEEK_API_KEY || "";
 
   if (!apiKey) {
     console.warn("[DeepSeek AI] API key missing, returning pastoral fallback.");

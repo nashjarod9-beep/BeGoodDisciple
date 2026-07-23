@@ -10,6 +10,7 @@ import {
   CalendarCheck,
   FileText,
   User,
+  HelpCircle,
   LogOut,
   ChevronRight,
   ShieldCheck,
@@ -37,6 +38,11 @@ const navItems = [
     label: "Comptes rendus",
     href: "/comptes-rendus",
     icon: FileText,
+  },
+  {
+    label: "Aide & FAQ",
+    href: "/aide",
+    icon: HelpCircle,
   },
   {
     label: "Profil",

@@ -327,14 +327,26 @@ export default function ProfilPage() {
           </div>
 
           <div className="pt-4 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={handleSignOut}
-              icon={<LogOut className="w-4 h-4" />}
-            >
-              Se déconnecter de BGD
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={handleSignOut}
+                icon={<LogOut className="w-4 h-4" />}
+              >
+                Se déconnecter de BGD
+              </Button>
+
+              <a href="/api/user/export" download>
+                <Button
+                  variant="outline"
+                  size="md"
+                  type="button"
+                >
+                  Exporter mes données RGPD (JSON)
+                </Button>
+              </a>
+            </div>
 
             <Button
               variant="danger"
@@ -344,6 +356,16 @@ export default function ProfilPage() {
             >
               Supprimer mon compte (RGPD)
             </Button>
+          </div>
+
+          <div className="pt-3 flex items-center justify-center gap-4 text-xs text-slate-500 font-medium">
+            <a href="/politique-de-confidentialite" target="_blank" className="hover:text-blue-900 hover:underline">
+              Politique de Confidentialité
+            </a>
+            <span>•</span>
+            <a href="/mentions-legales" target="_blank" className="hover:text-blue-900 hover:underline">
+              Mentions Légales
+            </a>
           </div>
         </div>
       </Card>

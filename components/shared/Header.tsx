@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
-import { Menu, Bell, Search, Calendar } from "lucide-react";
+import { Menu, Search, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { NotificationCenter } from "./NotificationCenter";
 
 interface HeaderProps {
   onMenuToggle?: () => void;
@@ -51,11 +52,8 @@ export const Header: React.FC<HeaderProps> = ({
           />
         </div>
 
-        {/* Notifications Icon with Indicator */}
-        <button className="relative p-2.5 rounded-xl bg-slate-50 hover:bg-blue-50 text-slate-600 hover:text-blue-900 border border-slate-200/60 transition-colors">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white" />
-        </button>
+        {/* Interactive Notification Center */}
+        <NotificationCenter />
 
         {/* User Avatar Badge */}
         <div className="flex items-center gap-3 pl-2 border-l border-slate-200">
