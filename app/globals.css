@@ -1,0 +1,77 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: 'Inter', sans-serif;
+  --font-heading: 'Poppins', sans-serif;
+  --background: #FAFCFF;
+  --foreground: #0F172A;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: var(--font-heading);
+}
+
+/* Custom Glassmorphism & Soft Gradient Cards */
+.bgd-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 10px 30px -10px rgba(30, 58, 138, 0.05);
+}
+
+.bgd-card-gradient {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(239, 246, 255, 0.85) 60%, rgba(254, 243, 199, 0.5) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(191, 219, 254, 0.5);
+  box-shadow: 0 12px 35px -10px rgba(59, 130, 246, 0.12);
+}
+
+/* Gradient Text Effect */
+.bgd-text-gradient {
+  background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 50%, #D97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bgd-text-gradient-gold {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Animated Glow Effects */
+.bgd-glow-hover {
+  transition: all 0.3s ease;
+}
+
+.bgd-glow-hover:hover {
+  box-shadow: 0 12px 30px -5px rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}

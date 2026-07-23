@@ -1,0 +1,59 @@
+// BeGoodDisciple (BGD) - Prisma Schema
+// Connected to Supabase PostgreSQL Database
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// User Roles in the BGD Platform
+enum Role {
+  DISCIPLE
+  MENTOR     // Faiseur de Disciple (FD)
+  ADMIN
+}
+
+// Status for Weekly / Monthly Reports
+enum ReportStatus {
+  DRAFT
+  SENT
+  REVIEWED
+}
+
+// Base User Model (Ready for Supabase Auth integration & future extensions)
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  fullName      String
+  role          Role      @default(DISCIPLE)
+  avatarUrl     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Mentor / Disciple relationship
+  mentorId      String?
+  mentor        User?     @relation("DiscipleMentor", fields: [mentorId], references: [id])
+  disciples     User[]    @relation("DiscipleMentor")
+
+  // Reports
+  sentReports   Report[]  @relation("DiscipleReports")
+  receivedReports Report[] @relation("MentorReports")
+}
+
+model Report {
+  id           String       @id @default(uuid())
+  discipleId   String
+  disciple     User         @relation("DiscipleReports", fields: [discipleId], references: [id])
+  mentorId     String?
+  mentor       User?        @relation("MentorReports", fields: [mentorId], references: [id])
+  status       ReportStatus @default(DRAFT)
+  summary      String?
+  sentAt       DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
