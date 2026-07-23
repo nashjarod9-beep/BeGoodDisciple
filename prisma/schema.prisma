@@ -37,6 +37,22 @@ enum ReportStatus {
   REVIEWED
 }
 
+// 12 Annual Objective Category Types
+enum CategorieType {
+  PRIERE_PERSONNELLE
+  PRIERE_DE_GROUPE
+  LECTURE_BIBLIQUE
+  MEDITATION
+  EVANGELISATION
+  LITTERATURE_CHRETIENNE
+  RETRAITES_SPIRITUELLES
+  DONS_OFFRANDES
+  VISITES_PASTORALES
+  ENSEIGNEMENTS
+  CARACTERE
+  CUSTOM
+}
+
 // User Model (Maps to Supabase Auth & platform preferences)
 model User {
   id                  String               @id @default(uuid())
@@ -55,7 +71,8 @@ model User {
   discipleRelations   RelationDiscipolat[] @relation("DiscipleRelations")
   mentorRelations     RelationDiscipolat[] @relation("MentorRelations")
 
-  // Reports
+  // Annual Objectives & Reports
+  objectifsAnnuels    ObjectifAnnuel[]
   sentReports         Report[]             @relation("DiscipleReports")
   receivedReports     Report[]             @relation("MentorReports")
 }
@@ -66,7 +83,7 @@ model RelationDiscipolat {
   discipleId             String
   disciple               User           @relation("DiscipleRelations", fields: [discipleId], references: [id], onDelete: Cascade)
   
-  faiseurDeDiscipleEmail String         // Email of FD (FD may not be registered yet)
+  faiseurDeDiscipleEmail String
   faiseurDeDiscipleId    String?
   faiseurDeDisciple      User?          @relation("MentorRelations", fields: [faiseurDeDiscipleId], references: [id], onDelete: SetNull)
   
@@ -76,6 +93,30 @@ model RelationDiscipolat {
   
   createdAt              DateTime       @default(now())
   updatedAt              DateTime       @updatedAt
+}
+
+// Annual Objectives container with Versioning
+model ObjectifAnnuel {
+  id          String             @id @default(uuid())
+  userId      String
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  annee       Int                @default(2026)
+  version     Int                @default(1)
+  isCurrent   Boolean            @default(true)
+  categories  ObjectifCategorie[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+// Specific Category Goal Configuration (Stored as flexible JSON payload)
+model ObjectifCategorie {
+  id               String         @id @default(uuid())
+  objectifAnnuelId String
+  objectifAnnuel   ObjectifAnnuel @relation(fields: [objectifAnnuelId], references: [id], onDelete: Cascade)
+  type             CategorieType
+  config           Json           // Flexible JSON storing target values, frequencies, custom questions & types
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 }
 
 model Report {
