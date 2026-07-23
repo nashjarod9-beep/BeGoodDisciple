@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { BgdLogo } from "./BgdLogo";
 import {
   LayoutDashboard,
@@ -15,6 +15,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Badge } from "../ui/Badge";
+import { getCurrentUserSession, signOutUser, CurrentUserSession } from "@/lib/auth-service";
 
 const navItems = [
   {
@@ -54,6 +55,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onMobileClose,
 }) => {
   const pathname = usePathname();
+  const router = useRouter();
+  const [session, setSession] = useState<CurrentUserSession | null>(null);
+
+  useEffect(() => {
+    setSession(getCurrentUserSession());
+  }, [pathname]);
+
+  const handleLogout = async () => {
+    await signOutUser();
+    router.push("/login");
+  };
+
+  const displayName = session
+    ? `${session.firstName || "Jean"} ${session.lastName || "Disciple"}`
+    : "Jean Disciple";
+  const initials = session?.firstName ? session.firstName[0] + (session.lastName ? session.lastName[0] : "") : "JD";
+  const mentorEmail = session?.activeMentorEmail || "pastor.paul@example.com";
+  const primaryRole = session?.roles?.[0] === "FAISEUR_DE_DISCIPLE" ? "Mentor FD" : "Disciple";
 
   return (
     <>
@@ -79,16 +98,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* User Role Card */}
           <div className="p-3.5 rounded-2xl bg-gradient-to-r from-blue-900 to-indigo-950 text-white shadow-md shadow-blue-950/20 mb-6 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-amber-400 text-blue-950 font-bold flex items-center justify-center text-sm shadow-sm">
-                JD
+              <div className="w-9 h-9 rounded-full bg-amber-400 text-blue-950 font-bold flex items-center justify-center text-sm shadow-sm uppercase">
+                {initials}
               </div>
-              <div>
-                <p className="text-xs font-bold font-heading leading-snug">Jean Disciple</p>
-                <p className="text-[10px] text-blue-200">Mentor: Past. Paul</p>
+              <div className="overflow-hidden">
+                <p className="text-xs font-bold font-heading leading-snug truncate">{displayName}</p>
+                <p className="text-[10px] text-blue-200 truncate">FD: {mentorEmail}</p>
               </div>
             </div>
             <Badge variant="gold" size="sm" dot={false}>
-              Disciple
+              {primaryRole}
             </Badge>
           </div>
 
@@ -136,13 +155,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span className="font-medium text-[11px]">Redevabilité active avec le FD</span>
           </div>
 
-          <Link
-            href="/login"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors text-left"
           >
             <LogOut className="w-4 h-4" />
             <span>Se déconnecter</span>
-          </Link>
+          </button>
         </div>
       </aside>
     </>

@@ -11,11 +11,23 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// User Roles in the BGD Platform
+// User Roles in the BGD Platform (A user can be both DISCIPLE and FAISEUR_DE_DISCIPLE)
 enum Role {
   DISCIPLE
-  MENTOR     // Faiseur de Disciple (FD)
+  FAISEUR_DE_DISCIPLE
   ADMIN
+}
+
+// Status for Disciple-Mentor (FD) Relationship
+enum StatutRelation {
+  ACTIF
+  INACTIF
+}
+
+// Default Report Frequency
+enum FrequenceCompteRendu {
+  HEBDOMADAIRE
+  MENSUEL
 }
 
 // Status for Weekly / Monthly Reports
@@ -25,32 +37,53 @@ enum ReportStatus {
   REVIEWED
 }
 
-// Base User Model (Ready for Supabase Auth integration & future extensions)
+// User Model (Maps to Supabase Auth & platform preferences)
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  fullName      String
-  role          Role      @default(DISCIPLE)
-  avatarUrl     String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                  String               @id @default(uuid())
+  email               String               @unique
+  firstName           String?
+  lastName            String?
+  roles               Role[]               @default([DISCIPLE])
+  avatarUrl           String?
+  timezone            String               @default("Europe/Paris")
+  defaultFrequency    FrequenceCompteRendu @default(HEBDOMADAIRE)
+  onboardingCompleted Boolean              @default(false)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 
-  // Mentor / Disciple relationship
-  mentorId      String?
-  mentor        User?     @relation("DiscipleMentor", fields: [mentorId], references: [id])
-  disciples     User[]    @relation("DiscipleMentor")
+  // Relationships as Disciple & as Faiseur de Disciple (FD)
+  discipleRelations   RelationDiscipolat[] @relation("DiscipleRelations")
+  mentorRelations     RelationDiscipolat[] @relation("MentorRelations")
 
   // Reports
-  sentReports   Report[]  @relation("DiscipleReports")
-  receivedReports Report[] @relation("MentorReports")
+  sentReports         Report[]             @relation("DiscipleReports")
+  receivedReports     Report[]             @relation("MentorReports")
+}
+
+// History of Disciple <-> Mentor (FD) Relationships
+model RelationDiscipolat {
+  id                     String         @id @default(uuid())
+  discipleId             String
+  disciple               User           @relation("DiscipleRelations", fields: [discipleId], references: [id], onDelete: Cascade)
+  
+  faiseurDeDiscipleEmail String         // Email of FD (FD may not be registered yet)
+  faiseurDeDiscipleId    String?
+  faiseurDeDisciple      User?          @relation("MentorRelations", fields: [faiseurDeDiscipleId], references: [id], onDelete: SetNull)
+  
+  statut                 StatutRelation @default(ACTIF)
+  dateDebut              DateTime       @default(now())
+  dateFin                DateTime?
+  
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
 }
 
 model Report {
   id           String       @id @default(uuid())
   discipleId   String
-  disciple     User         @relation("DiscipleReports", fields: [discipleId], references: [id])
+  disciple     User         @relation("DiscipleReports", fields: [discipleId], references: [id], onDelete: Cascade)
   mentorId     String?
-  mentor       User?        @relation("MentorReports", fields: [mentorId], references: [id])
+  mentor       User?        @relation("MentorReports", fields: [mentorId], references: [id], onDelete: SetNull)
   status       ReportStatus @default(DRAFT)
   summary      String?
   sentAt       DateTime?
