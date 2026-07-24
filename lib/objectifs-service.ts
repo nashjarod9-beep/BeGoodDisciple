@@ -3,7 +3,20 @@ import { FullObjectivesConfig, ObjectifAnnuelData } from "@/types";
 const OBJECTIVES_STORAGE_KEY = "bgd_objectifs_annuels";
 
 export const DEFAULT_OBJECTIVES_CONFIG: FullObjectivesConfig = {
-  prierePersonnelle: { enabled: true, dailyMinutes: 45 },
+  etreCaractere: {
+    enabled: true,
+    fruitEsprit: "Fidélité, discipline, douceur, maîtrise de soi (Galates 5:22)",
+    vicesToAbandon: ["Bavardage (Proverbes 10:19)", "Procrastination (Ecclésiaste 3:1)", "Amour du sommeil (Proverbes 20:13)"],
+    godKnowledgeGoal: "Connaître Dieu comme mon Père qui m'exauce toujours",
+    personalMinistryWorship: "Développer une vie d'action de grâce et chanter longtemps dans la présence de Dieu (Éphésiens 5:20)",
+    commonMinistryGifts: ["Aiguiser mon don d'évangéliste", "Manifestation des dons de guérison & miracles", "Parole de connaissance"],
+  },
+  prierePersonnelle: {
+    enabled: true,
+    dailyMinutes: 90,
+    dailyHours: 1.5,
+    customNotes: "1h30 par jour (45h/mois) + 2 nuits de prière par mois (1er et 3ème vendredi du mois)",
+  },
   priereDeGroupe: {
     enabled: true,
     events: [
@@ -12,19 +25,74 @@ export const DEFAULT_OBJECTIVES_CONFIG: FullObjectivesConfig = {
       { id: "ev-3", name: "Prière du Dimanche", dayOfWeek: "Dimanche", time: "08h30" },
     ],
   },
-  lectureBiblique: { enabled: true, dailyChapters: 4, weeklyChapters: 28 },
-  meditation: { enabled: true, dailyMinutes: 15 },
-  evangelisation: { enabled: true, weeklyPeopleCount: 2, trackTracts: true },
-  litteratureChretienne: { enabled: true, weeklyPagesCount: 30, trackCompletedBooks: true },
-  retraitesSpirituelles: { enabled: true, frequencyPerYear: "Trimestrielle (4/an)", plannedCount: 4 },
-  donsOffrandes: { enabled: true, trackTithe: true, trackGalates6: true },
-  visitesPastorales: { enabled: true, monthlyVisitsCount: 3 },
-  enseignements: { enabled: true, weeklyTeachingsCount: 2 },
+  lectureBiblique: { enabled: true, dailyChapters: 7, weeklyChapters: 49 },
+  meditation: { enabled: true, dailyMinutes: 60, dailyHours: 1 },
+  jeune: {
+    enabled: true,
+    full3DayFastsCount: 8,
+    partial100DayFast: true,
+    crusadeDaysCount: 7,
+    customNotes: "8 jeûnes complets de 3 jours, 1 jeûne partiel de 100 jours, 7 jours durant la croisade",
+  },
+  memorisation: {
+    enabled: true,
+    versesPerWeek: 2,
+    targetBook: "Épître de Paul aux Philippiens (104 versets)",
+  },
+  evangelisation: {
+    enabled: true,
+    weeklyPeopleCount: 5,
+    trackTracts: true,
+    plannedTractsCount: 500,
+    soulsTargetCount: 5,
+  },
+  litteratureChretienne: {
+    enabled: true,
+    weeklyPagesCount: 40,
+    trackCompletedBooks: true,
+    booksCountTarget: 15,
+  },
+  retraitesSpirituelles: {
+    enabled: true,
+    frequencyPerYear: "1 par mois (12/an)",
+    plannedCount: 12,
+    periodUnit: "mois",
+    retreatDurationHours: 24,
+  },
+  objectifsPhy: {
+    enabled: true,
+    targetSport: "Séance de sport et entretien physique",
+    sessionsPerWeek: 1,
+  },
+  ministerePastoral: {
+    enabled: true,
+    leadersToTrain: 3,
+    disciplesToTrain: 10,
+    visitsTarget: 20,
+  },
+  donsOffrandes: {
+    enabled: true,
+    trackTithe: true,
+    trackGalates6: true,
+    tithePercentage: 10,
+    offrandePercentage: 10,
+    galates6Notes: "Don mensuel régulier aux pasteurs & enseignants qui m'édifient",
+    familyGiftsNotes: "Soutien mensuel à la famille physique & cadeaux spirituels",
+  },
+  visitesPastorales: { enabled: true, monthlyVisitsCount: 4 },
+  enseignements: { enabled: true, weeklyTeachingsCount: 3 },
+  projets: {
+    enabled: true,
+    financialProject: "Ouvrir ma boutique de vente de produits digitaux en ligne",
+    spiritualProject: "Lancer ma chaîne YouTube chrétienne sur l'entreprenariat",
+    professionalProject: "Maîtriser les ventes sur les réseaux et le neuromarketing, passer le permis C",
+    customProjects: ["Écrire l'Ebook 'Comment lancer son business'", "Organiser 3 conférences en ligne"],
+  },
   caractere: {
     enabled: true,
     axes: [
-      { id: "ax-1", name: "Sommeil & Réveil matinal", targetGoal: "7h par nuit • Réveil 05h30" },
-      { id: "ax-2", name: "Discipline & Concentration", targetGoal: "0 réseau social pendant la prière" },
+      { id: "ax-1", name: "Fidélité & Ponctualité", targetGoal: "Être fidèle dans mes engagements" },
+      { id: "ax-2", name: "Discipline de travail", targetGoal: "Éliminer la procrastination" },
     ],
   },
   custom: {
@@ -32,8 +100,8 @@ export const DEFAULT_OBJECTIVES_CONFIG: FullObjectivesConfig = {
     items: [
       {
         id: "cust-1",
-        title: "Études & Lecture académique",
-        question: "As-tu étudié au moins 2 heures aujourd'hui ?",
+        title: "Études & Lecture de livres",
+        question: "As-tu lu au moins 30 minutes aujourd'hui ?",
         frequency: "daily",
         responseType: "boolean",
       },
@@ -55,7 +123,6 @@ export function getAnnualObjectivesHistory(): ObjectifAnnuelData[] {
     }
   }
   
-  // Initial default record
   const initialData: ObjectifAnnuelData = {
     id: "obj-2026-v1",
     userId: "user-demo-1",
@@ -83,16 +150,22 @@ export function getCurrentObjectivesConfig(): FullObjectivesConfig {
   const configObj: Partial<FullObjectivesConfig> = {};
   current.categories.forEach((cat) => {
     const keyMap: Record<string, keyof FullObjectivesConfig> = {
+      ETRE_CARACTERE: "etreCaractere",
       PRIERE_PERSONNELLE: "prierePersonnelle",
       PRIERE_DE_GROUPE: "priereDeGroupe",
       LECTURE_BIBLIQUE: "lectureBiblique",
       MEDITATION: "meditation",
+      JEUNE: "jeune",
+      MEMORISATION: "memorisation",
       EVANGELISATION: "evangelisation",
       LITTERATURE_CHRETIENNE: "litteratureChretienne",
       RETRAITES_SPIRITUELLES: "retraitesSpirituelles",
+      OBJECTIFS_PHY: "objectifsPhy",
+      MINISTERE_PASTORAL: "ministerePastoral",
       DONS_OFFRANDES: "donsOffrandes",
       VISITES_PASTORALES: "visitesPastorales",
       ENSEIGNEMENTS: "enseignements",
+      PROJETS: "projets",
       CARACTERE: "caractere",
       CUSTOM: "custom",
     };
@@ -116,7 +189,6 @@ export function saveAnnualObjectivesConfig(
   const previousCurrent = history.find((h) => h.annee === annee && h.isCurrent);
   const nextVersion = previousCurrent ? previousCurrent.version + 1 : 1;
 
-  // Mark all previous for this year as not current
   const updatedHistory = history.map((h) =>
     h.annee === annee ? { ...h, isCurrent: false } : h
   );
@@ -128,16 +200,22 @@ export function saveAnnualObjectivesConfig(
     version: nextVersion,
     isCurrent: true,
     categories: [
+      { type: "ETRE_CARACTERE" as any, config: config.etreCaractere },
       { type: "PRIERE_PERSONNELLE", config: config.prierePersonnelle },
       { type: "PRIERE_DE_GROUPE", config: config.priereDeGroupe },
       { type: "LECTURE_BIBLIQUE", config: config.lectureBiblique },
       { type: "MEDITATION", config: config.meditation },
+      { type: "JEUNE" as any, config: config.jeune },
+      { type: "MEMORISATION" as any, config: config.memorisation },
       { type: "EVANGELISATION", config: config.evangelisation },
       { type: "LITTERATURE_CHRETIENNE", config: config.litteratureChretienne },
       { type: "RETRAITES_SPIRITUELLES", config: config.retraitesSpirituelles },
+      { type: "OBJECTIFS_PHY" as any, config: config.objectifsPhy },
+      { type: "MINISTERE_PASTORAL" as any, config: config.ministerePastoral },
       { type: "DONS_OFFRANDES", config: config.donsOffrandes },
       { type: "VISITES_PASTORALES", config: config.visitesPastorales },
       { type: "ENSEIGNEMENTS", config: config.enseignements },
+      { type: "PROJETS" as any, config: config.projets },
       { type: "CARACTERE", config: config.caractere },
       { type: "CUSTOM", config: config.custom },
     ],

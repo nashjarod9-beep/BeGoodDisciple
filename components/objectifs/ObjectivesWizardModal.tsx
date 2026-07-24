@@ -5,31 +5,35 @@ import {
   Sparkles,
   ArrowRight,
   ArrowLeft,
-  Plus,
-  Trash2,
   CheckCircle2,
   Clock,
-  BookOpen,
   Users,
-  Heart,
+  BookOpen,
   BookMarked,
+  Heart,
+  Award,
   Gift,
   ShieldCheck,
   Headphones,
-  Award,
+  Plus,
+  Trash2,
   HelpCircle,
-  X,
-  Target,
+  Flame,
+  Dumbbell,
+  Briefcase,
+  DollarSign,
 } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { Modal } from "@/components/ui/Modal";
+import { saveAnnualObjectivesConfig } from "@/lib/objectifs-service";
 import {
   FullObjectivesConfig,
   GroupPrayerEvent,
   CharacterAxis,
   CustomGoalItem,
 } from "@/types";
-import { saveAnnualObjectivesConfig } from "@/lib/objectifs-service";
 
 interface ObjectivesWizardModalProps {
   isOpen: boolean;
@@ -62,6 +66,8 @@ export const ObjectivesWizardModal: React.FC<ObjectivesWizardModalProps> = ({
   const [customRespType, setCustomRespType] = useState<"boolean" | "number" | "text">("boolean");
 
   if (!isOpen) return null;
+
+  const totalSteps = 13;
 
   const handleAddGroupEvent = () => {
     if (!newEventName.trim()) return;
@@ -119,122 +125,58 @@ export const ObjectivesWizardModal: React.FC<ObjectivesWizardModalProps> = ({
     });
   };
 
-  const handleAddCustomGoal = () => {
-    if (!customTitle.trim()) return;
-    const newCust: CustomGoalItem = {
-      id: `cust-${Date.now()}`,
-      title: customTitle,
-      question: customQuestion || `As-tu validé ${customTitle} ?`,
-      frequency: customFreq,
-      responseType: customRespType,
-    };
-    setConfig({
-      ...config,
-      custom: {
-        ...config.custom,
-        items: [...config.custom.items, newCust],
-      },
-    });
-    setCustomTitle("");
-    setCustomQuestion("");
-  };
-
-  const handleRemoveCustomGoal = (id: string) => {
-    setConfig({
-      ...config,
-      custom: {
-        ...config.custom,
-        items: config.custom.items.filter((i) => i.id !== id),
-      },
-    });
-  };
-
-  const handleSaveAll = () => {
+  const handleSaveConfig = () => {
     const res = saveAnnualObjectivesConfig(config, 2026);
-    onSaved(res.version);
-    onClose();
+    if (res.success) {
+      onSaved(res.version);
+      onClose();
+    }
   };
-
-  const stepTitles = [
-    "1. Prière Personnelle",
-    "2. Prière de Groupe",
-    "3. Lecture Biblique",
-    "4. Méditation",
-    "5. Évangélisation",
-    "6. Littérature Chrétienne",
-    "7. Retraites Spirituelles",
-    "8. Dons, Dîmes & Offrandes",
-    "9. Visites Pastorales",
-    "10. Enseignements Écoutés",
-    "11. Caractère & Discipline",
-    "12. Objectifs Personnalisés",
-  ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
-
-      {/* Dialog Body */}
-      <div className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl shadow-blue-950/20 border border-slate-100 z-10 overflow-hidden my-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-950 text-white">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-400 text-blue-950 font-extrabold flex items-center justify-center shadow-md">
-              <Target className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold font-heading">
-                Configuration des Objectifs Annuel 2026
-              </h3>
-              <p className="text-xs text-blue-200">
-                {showIntroGuide ? "Guide d'introduction de A à Z" : `Étape ${step} sur 12 • ${stepTitles[step - 1]}`}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* INTRO GUIDE VIEW */}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Guide de Configuration des Objectifs 2026"
+      subtitle="Parcours d'élaboration spirituelle (ÊTRE & FAIRE)"
+      maxWidth="xl"
+    >
+      <div className="space-y-6">
+        {/* INTRODUCTORY GUIDE SCREEN */}
         {showIntroGuide ? (
-          <div className="p-6 sm:p-8 space-y-6">
-            <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-amber-50 border border-blue-100 space-y-3">
-              <div className="flex items-center gap-2 text-blue-900 font-bold font-heading text-lg">
-                <Sparkles className="w-5 h-5 text-amber-500 fill-amber-400" />
-                <span>Comment établir tes objectifs et réussir ton compte rendu de A à Z</span>
+          <div className="space-y-6">
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-950 text-white space-y-3">
+              <div className="flex items-center gap-2 text-amber-300 font-bold text-xs uppercase tracking-wider">
+                <Sparkles className="w-4 h-4 fill-amber-300" />
+                <span>Guide Méthodologique BeGoodDisciple</span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Ce wizard est le cœur de votre expérience <strong>BeGoodDisciple</strong>. Les objectifs que vous allez définir ici vont piloter dynamiquement toute la structure de votre journal quotidien et générer automatiquement vos bilans spirituels pour votre mentor.
+              <h3 className="text-xl sm:text-2xl font-extrabold font-heading">
+                Comment établir vos objectifs de l'année de A à Z ?
+              </h3>
+              <p className="text-xs sm:text-sm text-blue-100 leading-relaxed">
+                Ce parcours vous guide pas à pas à travers les 2 grandes parties du discipolat chrétien : <strong>PARTIE I (L'ÊTRE - Caractère & Esprit)</strong> et <strong>PARTIE II (LE FAIRE - Discipline, Prière, Jeûne, Finances, Projets)</strong>.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-white border border-slate-200/80 space-y-2">
-                <Badge variant="gold" size="sm">Étape A : Définition des cibles</Badge>
-                <h4 className="text-sm font-bold font-heading text-slate-900">Vos engagements 2026</h4>
+                <Badge variant="gold" size="sm">PARTIE I — L'ÊTRE</Badge>
+                <h4 className="text-sm font-bold font-heading text-slate-900">Ressembler à Christ</h4>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Répondez aux questions à travers les 12 catégories clés (Prière, Bible, Évangélisation, Caractère, etc.) pour fixer des cibles concrètes et atteignables.
+                  Revêtement du Fruit de l'Esprit, abandon des 3 vices (bavardage, procrastination, sommeil), connaissance de Dieu et louange.
                 </p>
               </div>
 
               <div className="p-4 rounded-xl bg-white border border-slate-200/80 space-y-2">
-                <Badge variant="info" size="sm">Étape Z : Suivi & Compte Rendu</Badge>
-                <h4 className="text-sm font-bold font-heading text-slate-900">Pilote votre suivi quotidien</h4>
+                <Badge variant="info" size="sm">PARTIE II — LE FAIRE</Badge>
+                <h4 className="text-sm font-bold font-heading text-slate-900">Discipline & Projets</h4>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Chaque soir, votre tableau de bord vous proposera exactement les champs correspondant à vos choix. Vos comptes rendus au FD seront calculés automatiquement.
+                  Prière (1h30/j), Lecture biblique (7 chap/j), Jeûne, Mémorisation, Finances, Galates 6 et vos Projets 2026.
                 </p>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-100 flex justify-end">
+            <div className="pt-2 flex justify-end">
               <Button
                 variant="gold"
                 size="lg"
@@ -242,156 +184,240 @@ export const ObjectivesWizardModal: React.FC<ObjectivesWizardModalProps> = ({
                 icon={<ArrowRight className="w-5 h-5" />}
                 iconPosition="right"
               >
-                Démarrer la configuration (12 étapes)
+                Démarrer la configuration
               </Button>
             </div>
           </div>
         ) : (
-          /* 12-STEP WIZARD CONTENT */
-          <div className="p-6 sm:p-8 space-y-6">
-            {/* Progress indicator */}
+          /* STEP CONFIGURATION CONTENT */
+          <div className="space-y-6">
+            {/* Progress Bar */}
             <div className="space-y-1.5">
               <div className="flex justify-between items-center text-xs font-bold text-slate-500">
-                <span>Progression du Wizard</span>
-                <span className="text-blue-950">{Math.round((step / 12) * 100)}%</span>
+                <span>Étape {step} sur {totalSteps}</span>
+                <span className="text-blue-950 font-bold">{Math.round((step / totalSteps) * 100)}%</span>
               </div>
               <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-blue-600 via-blue-500 to-amber-400 transition-all duration-300"
-                  style={{ width: `${(step / 12) * 100}%` }}
+                  style={{ width: `${(step / totalSteps) * 100}%` }}
                 />
               </div>
             </div>
 
-            {/* CATEGORY 1: PRIERE PERSONNELLE */}
+            {/* STEP 1: PARTIE I - ÊTRE & CARACTÈRE */}
             {step === 1 && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-2xl bg-blue-900 text-amber-400">
+                    <Heart className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold font-heading text-slate-900">Étape 1. PARTIE I — L'ÊTRE : Fruit de l'Esprit & Caractère</h4>
+                    <p className="text-xs text-slate-500">Formulez vos objectifs de transformation intérieure</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-blue-900 mb-1.5">
+                      A. Revêtement du Fruit de l'Esprit (Galates 5:22-23)
+                    </label>
+                    <input
+                      type="text"
+                      value={config.etreCaractere?.fruitEsprit || ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          etreCaractere: {
+                            ...(config.etreCaractere || {}),
+                            fruitEsprit: e.target.value,
+                            enabled: true,
+                            vicesToAbandon: config.etreCaractere?.vicesToAbandon || [],
+                            godKnowledgeGoal: config.etreCaractere?.godKnowledgeGoal || "",
+                            personalMinistryWorship: config.etreCaractere?.personalMinistryWorship || "",
+                            commonMinistryGifts: config.etreCaractere?.commonMinistryGifts || [],
+                          },
+                        })
+                      }
+                      placeholder="Ex: Fidélité, discipline, douceur, maîtrise de soi..."
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 outline-none"
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-rose-50/60 border border-rose-100">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-rose-900 mb-1.5">
+                      B. Abandon des Vices / Caractères à enlever
+                    </label>
+                    <input
+                      type="text"
+                      value={config.etreCaractere?.vicesToAbandon?.join(", ") || ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          etreCaractere: {
+                            ...(config.etreCaractere || {}),
+                            vicesToAbandon: e.target.value.split(",").map((s) => s.trim()),
+                            enabled: true,
+                            fruitEsprit: config.etreCaractere?.fruitEsprit || "",
+                            godKnowledgeGoal: config.etreCaractere?.godKnowledgeGoal || "",
+                            personalMinistryWorship: config.etreCaractere?.personalMinistryWorship || "",
+                            commonMinistryGifts: config.etreCaractere?.commonMinistryGifts || [],
+                          },
+                        })
+                      }
+                      placeholder="Ex: Bavardage (Prov 10:19), Procrastination (Eccl 3:1), Amour du sommeil (Prov 20:13)"
+                      className="w-full p-3 bg-white border border-rose-200 rounded-xl text-xs outline-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        C. Connaissance de Dieu
+                      </label>
+                      <input
+                        type="text"
+                        value={config.etreCaractere?.godKnowledgeGoal || ""}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            etreCaractere: {
+                              ...(config.etreCaractere || {}),
+                              godKnowledgeGoal: e.target.value,
+                              enabled: true,
+                              fruitEsprit: config.etreCaractere?.fruitEsprit || "",
+                              vicesToAbandon: config.etreCaractere?.vicesToAbandon || [],
+                              personalMinistryWorship: config.etreCaractere?.personalMinistryWorship || "",
+                              commonMinistryGifts: config.etreCaractere?.commonMinistryGifts || [],
+                            },
+                          })
+                        }
+                        placeholder="Ex: Connaître Dieu comme mon Père qui m'exauce..."
+                        className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none"
+                      />
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        D. Ministère personnel (Louange & Actions de grâce)
+                      </label>
+                      <input
+                        type="text"
+                        value={config.etreCaractere?.personalMinistryWorship || ""}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            etreCaractere: {
+                              ...(config.etreCaractere || {}),
+                              personalMinistryWorship: e.target.value,
+                              enabled: true,
+                              fruitEsprit: config.etreCaractere?.fruitEsprit || "",
+                              vicesToAbandon: config.etreCaractere?.vicesToAbandon || [],
+                              godKnowledgeGoal: config.etreCaractere?.godKnowledgeGoal || "",
+                              commonMinistryGifts: config.etreCaractere?.commonMinistryGifts || [],
+                            },
+                          })
+                        }
+                        placeholder="Ex: Développer l'action de grâce et chanter longtemps..."
+                        className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 2: PRIERE PERSONNELLE */}
+            {step === 2 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <div className="p-3 rounded-2xl bg-blue-50 text-blue-700">
                     <Clock className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold font-heading text-slate-900">1. Prière Personnelle</h4>
-                    <p className="text-xs text-slate-500">Suivi du temps d'intimité spirituelle quotidien</p>
+                    <h4 className="text-lg font-bold font-heading text-slate-900">Étape 2. Prière Personnelle</h4>
+                    <p className="text-xs text-slate-500">Temps d'intimité spirituelle et nuits de prière</p>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Veux-tu suivre ton temps de prière quotidien ?
-                    </span>
-                    <input
-                      type="checkbox"
-                      checked={config.prierePersonnelle.enabled}
-                      onChange={(e) =>
-                        setConfig({
-                          ...config,
-                          prierePersonnelle: {
-                            ...config.prierePersonnelle,
-                            enabled: e.target.checked,
-                          },
-                        })
-                      }
-                      className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
-                    />
-                  </div>
-
-                  {config.prierePersonnelle.enabled && (
-                    <div className="pt-3 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                          Objectif quotidien (en minutes)
-                        </label>
-                        <input
-                          type="number"
-                          min={1}
-                          max={1440}
-                          value={config.prierePersonnelle.dailyMinutes}
-                          onChange={(e) =>
-                            setConfig({
-                              ...config,
-                              prierePersonnelle: {
-                                ...config.prierePersonnelle,
-                                dailyMinutes: Number(e.target.value),
-                                dailyHours: Number(e.target.value) / 60,
-                              },
-                            })
-                          }
-                          className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                          Équivalent en Heures (ex: 1h30 = 1.5h)
-                        </label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          min={0.1}
-                          value={(config.prierePersonnelle.dailyMinutes / 60).toFixed(1)}
-                          onChange={(e) => {
-                            const hrs = Number(e.target.value);
-                            setConfig({
-                              ...config,
-                              prierePersonnelle: {
-                                ...config.prierePersonnelle,
-                                dailyMinutes: Math.round(hrs * 60),
-                                dailyHours: hrs,
-                              },
-                            });
-                          }}
-                          className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-amber-900 outline-none"
-                        />
-                      </div>
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Objectif quotidien (en minutes)
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        value={config.prierePersonnelle.dailyMinutes}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            prierePersonnelle: {
+                              ...config.prierePersonnelle,
+                              dailyMinutes: Number(e.target.value),
+                            },
+                          })
+                        }
+                        className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none"
+                      />
                     </div>
-                  )}
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Formulation d'objectif spécifique (Nuits, créneaux)
+                      </label>
+                      <input
+                        type="text"
+                        value={config.prierePersonnelle.customNotes || ""}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            prierePersonnelle: {
+                              ...config.prierePersonnelle,
+                              customNotes: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="Ex: 1h30 par jour + 2 nuits de prière par mois"
+                        className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs outline-none"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* CATEGORY 2: PRIERE DE GROUPE */}
-            {step === 2 && (
+            {/* STEP 3: PRIERE DE GROUPE */}
+            {step === 3 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <div className="p-3 rounded-2xl bg-amber-50 text-amber-700">
                     <Users className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold font-heading text-slate-900">2. Prière de Groupe & Rassemblements</h4>
-                    <p className="text-xs text-slate-500">Ajoutez vos rendez-vous récurrents de prière en communauté</p>
+                    <h4 className="text-lg font-bold font-heading text-slate-900">Étape 3. Prière de Groupe</h4>
+                    <p className="text-xs text-slate-500">Ajoutez et modifiez vos programmes récurrents</p>
                   </div>
                 </div>
 
-                {/* Events List */}
                 <div className="space-y-3">
                   {config.priereDeGroupe.events.map((ev) => (
-                    <div
-                      key={ev.id}
-                      className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between"
-                    >
+                    <div key={ev.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
                       <div>
                         <p className="text-sm font-bold text-slate-900">{ev.name}</p>
-                        <p className="text-xs text-slate-500">
-                          {ev.dayOfWeek} {ev.time ? `à ${ev.time}` : ""}
-                        </p>
+                        <p className="text-xs text-slate-500">{ev.dayOfWeek} {ev.time ? `à ${ev.time}` : ""}</p>
                       </div>
-                      <button
-                        onClick={() => handleRemoveGroupEvent(ev.id)}
-                        className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg"
-                      >
+                      <button onClick={() => handleRemoveGroupEvent(ev.id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
                 </div>
 
-                {/* Add Event Form */}
                 <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-100 space-y-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-blue-900">
-                    Ajouter un programme récurrent
-                  </p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-blue-900">Ajouter un programme</p>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <input
                       type="text"
@@ -428,28 +454,27 @@ export const ObjectivesWizardModal: React.FC<ObjectivesWizardModalProps> = ({
               </div>
             )}
 
-            {/* CATEGORY 3: LECTURE BIBLIQUE */}
-            {step === 3 && (
+            {/* STEP 4: LECTURE BIBLIQUE & MÉDITATION */}
+            {step === 4 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <div className="p-3 rounded-2xl bg-indigo-50 text-indigo-700">
                     <BookOpen className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold font-heading text-slate-900">3. Lecture Biblique</h4>
-                    <p className="text-xs text-slate-500">Fixez votre rythme de lecture de la Parole de Dieu</p>
+                    <h4 className="text-lg font-bold font-heading text-slate-900">Étape 4. Lecture Biblique & Méditation</h4>
+                    <p className="text-xs text-slate-500">Chapitres quotidiens et temps de méditation</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                      Chapitres par jour
+                      Chapitres par jour (ex: 7 chap/jour = 210/mois)
                     </label>
                     <input
                       type="number"
                       min={1}
-                      max={50}
                       value={config.lectureBiblique.dailyChapters}
                       onChange={(e) =>
                         setConfig({
@@ -467,78 +492,185 @@ export const ObjectivesWizardModal: React.FC<ObjectivesWizardModalProps> = ({
 
                   <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                      Chapitres par semaine (calculé)
+                      Méditation quotidienne (Minutes)
                     </label>
                     <input
                       type="number"
-                      readOnly
-                      value={config.lectureBiblique.weeklyChapters}
-                      className="w-full p-3 bg-slate-100 border border-slate-300 rounded-xl text-sm font-bold text-slate-600 outline-none cursor-not-allowed"
+                      min={1}
+                      value={config.meditation.dailyMinutes}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          meditation: {
+                            ...config.meditation,
+                            dailyMinutes: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-purple-900 outline-none"
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* CATEGORY 4: MEDITATION */}
-            {step === 4 && (
+            {/* STEP 5: JEÛNE & CROISADE */}
+            {step === 5 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-purple-50 text-purple-700">
-                    <BookMarked className="w-6 h-6" />
+                  <div className="p-3 rounded-2xl bg-amber-50 text-amber-700">
+                    <Flame className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold font-heading text-slate-900">4. Méditation Spirituelle</h4>
-                    <p className="text-xs text-slate-500">Temps quotidien d'étude profonde et de mémorisation</p>
+                    <h4 className="text-lg font-bold font-heading text-slate-900">Étape 5. Jeûne & Prière Prolongée</h4>
+                    <p className="text-xs text-slate-500">Programmation des temps de jeûne complets et partiels</p>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Objectif de méditation (Minutes par jour)
-                  </label>
-                  <input
-                    type="number"
-                    min={5}
-                    max={120}
-                    value={config.meditation.dailyMinutes}
-                    onChange={(e) =>
-                      setConfig({
-                        ...config,
-                        meditation: {
-                          ...config.meditation,
-                          dailyMinutes: Number(e.target.value),
-                        },
-                      })
-                    }
-                    className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Jeûnes complets de 3 jours
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={config.jeune?.full3DayFastsCount || 8}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          jeune: {
+                            ...(config.jeune || { enabled: true, full3DayFastsCount: 8, partial100DayFast: true, crusadeDaysCount: 7 }),
+                            full3DayFastsCount: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-amber-900 outline-none"
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Jours de Croisade
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={config.jeune?.crusadeDaysCount || 7}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          jeune: {
+                            ...(config.jeune || { enabled: true, full3DayFastsCount: 8, partial100DayFast: true, crusadeDaysCount: 7 }),
+                            crusadeDaysCount: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-amber-900 outline-none"
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">Jeûne partiel de 100 jours</span>
+                    <input
+                      type="checkbox"
+                      checked={config.jeune?.partial100DayFast ?? true}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          jeune: {
+                            ...(config.jeune || { enabled: true, full3DayFastsCount: 8, partial100DayFast: true, crusadeDaysCount: 7 }),
+                            partial100DayFast: e.target.checked,
+                          },
+                        })
+                      }
+                      className="w-5 h-5 accent-amber-600 rounded cursor-pointer mt-2"
+                    />
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* CATEGORY 5: EVANGELISATION */}
-            {step === 5 && (
+            {/* STEP 6: MÉMORISATION DE LA PAROLE */}
+            {step === 6 && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-2xl bg-blue-50 text-blue-700">
+                    <BookMarked className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold font-heading text-slate-900">Étape 6. Mémorisation de la Parole</h4>
+                    <p className="text-xs text-slate-500">Nombre de versets par semaine & livre cible</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Versets par semaine
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={config.memorisation?.versesPerWeek || 2}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          memorisation: {
+                            ...(config.memorisation || { enabled: true, versesPerWeek: 2, targetBook: "Épître aux Philippiens" }),
+                            versesPerWeek: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none"
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Livre cible
+                    </label>
+                    <input
+                      type="text"
+                      value={config.memorisation?.targetBook || ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          memorisation: {
+                            ...(config.memorisation || { enabled: true, versesPerWeek: 2, targetBook: "Épître aux Philippiens" }),
+                            targetBook: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="Ex: Épître de Paul aux Philippiens (104 versets)"
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 7: ÉVANGÉLISATION & ÂMES */}
+            {step === 7 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-700">
                     <Heart className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold font-heading text-slate-900">5. Évangélisation & Témoignage</h4>
-                    <p className="text-xs text-slate-500">Objectifs de partage de l'Évangile et distribution de traités</p>
+                    <h4 className="text-lg font-bold font-heading text-slate-900">Étape 7. Évangélisation, Traités & Âmes</h4>
+                    <p className="text-xs text-slate-500">Nombre de personnes abordées, traités et disciples gagnés</p>
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                      Personnes abordées (Objectif par semaine)
+                      Personnes / semaine
                     </label>
                     <input
                       type="number"
                       min={1}
-                      max={50}
                       value={config.evangelisation.weeklyPeopleCount}
                       onChange={(e) =>
                         setConfig({
@@ -549,55 +681,76 @@ export const ObjectivesWizardModal: React.FC<ObjectivesWizardModalProps> = ({
                           },
                         })
                       }
-                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none"
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-emerald-900 outline-none"
                     />
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Suivi de la distribution de traités d'évangélisation ?
-                    </span>
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Traités à distribuer
+                    </label>
                     <input
-                      type="checkbox"
-                      checked={config.evangelisation.trackTracts}
+                      type="number"
+                      min={10}
+                      value={config.evangelisation.plannedTractsCount || 500}
                       onChange={(e) =>
                         setConfig({
                           ...config,
                           evangelisation: {
                             ...config.evangelisation,
-                            trackTracts: e.target.checked,
+                            plannedTractsCount: Number(e.target.value),
                           },
                         })
                       }
-                      className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-emerald-900 outline-none"
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Âmes gagnées & baptisées
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={config.evangelisation.soulsTargetCount || 5}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          evangelisation: {
+                            ...config.evangelisation,
+                            soulsTargetCount: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-emerald-900 outline-none"
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* CATEGORY 6: LITTERATURE CHRETIENNE */}
-            {step === 6 && (
+            {/* STEP 8: LITTÉRATURE CHRÉTIENNE */}
+            {step === 8 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <div className="p-3 rounded-2xl bg-amber-50 text-amber-700">
                     <BookOpen className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold font-heading text-slate-900">6. Littérature Chrétienne</h4>
-                    <p className="text-xs text-slate-500">Lecture d'ouvrages et livres d'édification spirituelle</p>
+                    <h4 className="text-lg font-bold font-heading text-slate-900">Étape 8. Littérature Chrétienne</h4>
+                    <p className="text-xs text-slate-500">Nombre de livres & pages par semaine</p>
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
                     <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                      Pages lues par semaine
+                      Pages par semaine
                     </label>
                     <input
                       type="number"
-                      min={5}
-                      max={500}
+                      min={10}
                       value={config.litteratureChretienne.weeklyPagesCount}
                       onChange={(e) =>
                         setConfig({
@@ -608,450 +761,392 @@ export const ObjectivesWizardModal: React.FC<ObjectivesWizardModalProps> = ({
                           },
                         })
                       }
-                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none"
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-amber-900 outline-none"
                     />
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Activer le rappel hebdo "Livre terminé" (titre + auteur) ?
-                    </span>
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Objectif nombre de livres par an
+                    </label>
                     <input
-                      type="checkbox"
-                      checked={config.litteratureChretienne.trackCompletedBooks}
+                      type="number"
+                      min={1}
+                      value={config.litteratureChretienne.booksCountTarget || 15}
                       onChange={(e) =>
                         setConfig({
                           ...config,
                           litteratureChretienne: {
                             ...config.litteratureChretienne,
-                            trackCompletedBooks: e.target.checked,
+                            booksCountTarget: Number(e.target.value),
                           },
                         })
                       }
-                      className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-amber-900 outline-none"
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* CATEGORY 7: RETRAITES SPIRITUELLES */}
-            {step === 7 && (
+            {/* STEP 9: RETRAITES SPIRITUELLES */}
+            {step === 9 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <div className="p-3 rounded-2xl bg-teal-50 text-teal-700">
                     <Award className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold font-heading text-slate-900">7. Retraites Spirituelles</h4>
-                    <p className="text-xs text-slate-500">Planification des temps de mise à l'écart et de jeûne prolongé</p>
+                    <h4 className="text-lg font-bold font-heading text-slate-900">Étape 9. Retraites Spirituelles</h4>
+                    <p className="text-xs text-slate-500">Fréquence & durée investie par retraite</p>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                        Fréquence des retraites
-                      </label>
-                      <select
-                        value={config.retraitesSpirituelles.frequencyPerYear}
-                        onChange={(e) =>
-                          setConfig({
-                            ...config,
-                            retraitesSpirituelles: {
-                              ...config.retraitesSpirituelles,
-                              frequencyPerYear: e.target.value,
-                            },
-                          })
-                        }
-                        className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none"
-                      >
-                        <option value="1 par mois (12/an)">1 retraite de 24h par mois (12/an)</option>
-                        <option value="1 par semaine (52/an)">1 retraite par semaine</option>
-                        <option value="Trimestrielle (4/an)">Trimestrielle (4 retraites par an)</option>
-                        <option value="Semestrielle (2/an)">Semestrielle (2 retraites par an)</option>
-                        <option value="Annuelle (1/an)">Annuelle (1 retraite par an)</option>
-                        <option value="Sur-mesure">Fréquence sur-mesure</option>
-                      </select>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                        Durée investie par retraite (Heures)
-                      </label>
-                      <input
-                        type="number"
-                        min={1}
-                        max={168}
-                        value={config.retraitesSpirituelles.retreatDurationHours || 24}
-                        onChange={(e) =>
-                          setConfig({
-                            ...config,
-                            retraitesSpirituelles: {
-                              ...config.retraitesSpirituelles,
-                              retreatDurationHours: Number(e.target.value),
-                            },
-                          })
-                        }
-                        placeholder="Ex: 24 heures"
-                        className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-100 text-xs text-teal-900">
-                    💡 <strong>Standard du Discipolat :</strong> Une retraite mensuelle de 24 heures est fortement recommandée pour faire le point avec Dieu et renouveler ses forces spirituelles.
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* CATEGORY 8: DONS & OFFRANDES */}
-            {step === 8 && (
-              <div className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-amber-50 text-amber-800">
-                    <Gift className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold font-heading text-slate-900">8. Dons, Dîmes & Offrandes</h4>
-                    <p className="text-xs text-slate-500">Fidélité financière et dons aux enseignants (Galates 6)</p>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
-                      Suivi de la Dîme & Offrandes ?
-                    </span>
-                    <input
-                      type="checkbox"
-                      checked={config.donsOffrandes.trackTithe}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Fréquence des retraites
+                    </label>
+                    <select
+                      value={config.retraitesSpirituelles.frequencyPerYear}
                       onChange={(e) =>
                         setConfig({
                           ...config,
-                          donsOffrandes: {
-                            ...config.donsOffrandes,
-                            trackTithe: e.target.checked,
+                          retraitesSpirituelles: {
+                            ...config.retraitesSpirituelles,
+                            frequencyPerYear: e.target.value,
                           },
                         })
                       }
-                      className="w-5 h-5 accent-blue-600 rounded cursor-pointer"
-                    />
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none"
+                    >
+                      <option value="1 par mois (12/an)">1 retraite de 24h par mois (12/an)</option>
+                      <option value="1 par semaine (52/an)">1 retraite par semaine</option>
+                      <option value="Trimestrielle (4/an)">Trimestrielle (4 retraites par an)</option>
+                      <option value="Semestrielle (2/an)">Semestrielle (2 retraites par an)</option>
+                      <option value="Annuelle (1/an)">Annuelle (1 retraite par an)</option>
+                    </select>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                    <div>
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-700 block">
-                        Don "Galates 6" (Soutien à ceux qui enseignent)
-                      </span>
-                      <span className="text-[11px] text-slate-500">
-                        « Que celui à qui l'on enseigne la parole fasse part de tous ses biens à celui qui l'enseigne. »
-                      </span>
-                    </div>
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Durée par retraite (Heures)
+                    </label>
                     <input
-                      type="checkbox"
-                      checked={config.donsOffrandes.trackGalates6}
+                      type="number"
+                      min={1}
+                      value={config.retraitesSpirituelles.retreatDurationHours || 24}
                       onChange={(e) =>
                         setConfig({
                           ...config,
-                          donsOffrandes: {
-                            ...config.donsOffrandes,
-                            trackGalates6: e.target.checked,
+                          retraitesSpirituelles: {
+                            ...config.retraitesSpirituelles,
+                            retreatDurationHours: Number(e.target.value),
                           },
                         })
                       }
-                      className="w-5 h-5 accent-blue-600 rounded cursor-pointer shrink-0 ml-4"
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-teal-900 outline-none"
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* CATEGORY 9: VISITES PASTORALES */}
-            {step === 9 && (
-              <div className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-rose-50 text-rose-700">
-                    <Users className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-bold font-heading text-slate-900">9. Visites Pastorales & Fraternelles</h4>
-                    <p className="text-xs text-slate-500">Suivi des visites d'encouragement rendues aux frères et sœurs</p>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Objectif de visites par mois
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={30}
-                    value={config.visitesPastorales.monthlyVisitsCount}
-                    onChange={(e) =>
-                      setConfig({
-                        ...config,
-                        visitesPastorales: {
-                          ...config.visitesPastorales,
-                          monthlyVisitsCount: Number(e.target.value),
-                        },
-                      })
-                    }
-                    className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* CATEGORY 10: ENSEIGNEMENTS */}
+            {/* STEP 10: SPORT & SANTÉ */}
             {step === 10 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-sky-50 text-sky-700">
-                    <Headphones className="w-6 h-6" />
+                  <div className="p-3 rounded-2xl bg-rose-50 text-rose-700">
+                    <Dumbbell className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold font-heading text-slate-900">10. Enseignements Écoutés</h4>
-                    <p className="text-xs text-slate-500">Prédications et cours bibliques écoutés chaque semaine</p>
+                    <h4 className="text-lg font-bold font-heading text-slate-900">Étape 10. Santé & Sport</h4>
+                    <p className="text-xs text-slate-500">Sessions de sport et entretien physique</p>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Enseignements écoutés par semaine
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={20}
-                    value={config.enseignements.weeklyTeachingsCount}
-                    onChange={(e) =>
-                      setConfig({
-                        ...config,
-                        enseignements: {
-                          ...config.enseignements,
-                          weeklyTeachingsCount: Number(e.target.value),
-                        },
-                      })
-                    }
-                    className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Sessions par semaine
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      value={config.objectifsPhy?.sessionsPerWeek || 1}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          objectifsPhy: {
+                            ...(config.objectifsPhy || { enabled: true, targetSport: "Course & musculation", sessionsPerWeek: 1 }),
+                            sessionsPerWeek: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-rose-900 outline-none"
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Objectif physique spécifique
+                    </label>
+                    <input
+                      type="text"
+                      value={config.objectifsPhy?.targetSport || ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          objectifsPhy: {
+                            ...(config.objectifsPhy || { enabled: true, targetSport: "Course & musculation", sessionsPerWeek: 1 }),
+                            targetSport: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="Ex: Prise de masse, 1 session de 2h par semaine"
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold outline-none"
+                    />
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* CATEGORY 11: CARACTERE */}
+            {/* STEP 11: MINISTÈRE PASTORAL */}
             {step === 11 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-amber-50 text-amber-700">
-                    <ShieldCheck className="w-6 h-6" />
+                  <div className="p-3 rounded-2xl bg-purple-50 text-purple-700">
+                    <Users className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold font-heading text-slate-900">11. Caractère & Discipline Personnelle</h4>
-                    <p className="text-xs text-slate-500">Choisissez vos axes de progrès personnels (sommeil, maîtrise de soi, etc.)</p>
+                    <h4 className="text-lg font-bold font-heading text-slate-900">Étape 11. Ministère Pastoral & Formation</h4>
+                    <p className="text-xs text-slate-500">Dirigeants & disciples à former</p>
                   </div>
                 </div>
 
-                {/* Axes list */}
-                <div className="space-y-3">
-                  {config.caractere.axes.map((ax) => (
-                    <div key={ax.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-bold text-slate-900">{ax.name}</p>
-                        <p className="text-xs text-blue-700 font-semibold">{ax.targetGoal}</p>
-                      </div>
-                      <button onClick={() => handleRemoveCharacterAxis(ax.id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Form to add axis */}
-                <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-100 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold uppercase tracking-wider text-blue-900">Ajouter un axe de travail</p>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        try {
-                          const res = await fetch("/api/ai/suggestions", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              existingAxes: config.caractere.axes.map((a) => a.name),
-                            }),
-                          });
-                          const data = await res.json();
-                          if (data.suggestions && data.suggestions.length > 0) {
-                            const newAxes: CharacterAxis[] = data.suggestions.map((s: any, idx: number) => ({
-                              id: `ax-ai-${Date.now()}-${idx}`,
-                              name: s.name,
-                              targetGoal: s.targetGoal,
-                            }));
-                            setConfig({
-                              ...config,
-                              caractere: {
-                                ...config.caractere,
-                                axes: [...config.caractere.axes, ...newAxes],
-                              },
-                            });
-                          }
-                        } catch {
-                          // fallback
-                        }
-                      }}
-                      className="text-xs font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 border border-amber-300 px-3 py-1 rounded-full flex items-center gap-1.5 transition-colors"
-                    >
-                      <Sparkles className="w-3.5 h-3.5 fill-amber-600 text-amber-700" />
-                      <span>Suggérer des axes par l'IA</span>
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Dirigeants à former
+                    </label>
                     <input
-                      type="text"
-                      placeholder="Axe (ex: Sommeil)"
-                      value={newAxisName}
-                      onChange={(e) => setNewAxisName(e.target.value)}
-                      className="p-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Cible (ex: 7h par nuit)"
-                      value={newAxisGoal}
-                      onChange={(e) => setNewAxisGoal(e.target.value)}
-                      className="p-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none"
+                      type="number"
+                      min={0}
+                      value={config.ministerePastoral?.leadersToTrain || 3}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          ministerePastoral: {
+                            ...(config.ministerePastoral || { enabled: true, leadersToTrain: 3, disciplesToTrain: 10, visitsTarget: 20 }),
+                            leadersToTrain: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-purple-900 outline-none"
                     />
                   </div>
-                  <Button variant="secondary" size="sm" onClick={handleAddCharacterAxis} icon={<Plus className="w-4 h-4" />}>
-                    Ajouter cet axe
-                  </Button>
+
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Disciples à former
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={config.ministerePastoral?.disciplesToTrain || 10}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          ministerePastoral: {
+                            ...(config.ministerePastoral || { enabled: true, leadersToTrain: 3, disciplesToTrain: 10, visitsTarget: 20 }),
+                            disciplesToTrain: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-purple-900 outline-none"
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Visites pastorales chez les frères
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={config.ministerePastoral?.visitsTarget || 20}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          ministerePastoral: {
+                            ...(config.ministerePastoral || { enabled: true, leadersToTrain: 3, disciplesToTrain: 10, visitsTarget: 20 }),
+                            visitsTarget: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-purple-900 outline-none"
+                    />
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* CATEGORY 12: CUSTOM GOALS */}
+            {/* STEP 12: FINANCES, DÎMES & GALATES 6 */}
             {step === 12 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-700">
-                    <Sparkles className="w-6 h-6" />
+                  <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-800">
+                    <DollarSign className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="text-lg font-bold font-heading text-slate-900">12. Objectifs Additionnels Personnalisés</h4>
-                    <p className="text-xs text-slate-500">Ajoutez des blocs sur-mesure (études, travail, santé, etc.)</p>
+                    <h4 className="text-lg font-bold font-heading text-slate-900">Étape 12. Finances, Dîmes & Galates 6</h4>
+                    <p className="text-xs text-slate-500">Pourcentages de dîmes, offrandes et dons réguliers</p>
                   </div>
                 </div>
 
-                {/* Custom goals list */}
-                <div className="space-y-3">
-                  {config.custom.items.map((cust) => (
-                    <div key={cust.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-bold text-slate-900">{cust.title}</p>
-                        <p className="text-xs text-slate-600">Question : {cust.question}</p>
-                        <Badge variant="info" size="sm" className="mt-1">
-                          {cust.frequency} • Réponse : {cust.responseType}
-                        </Badge>
-                      </div>
-                      <button onClick={() => handleRemoveCustomGoal(cust.id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Form to add custom goal */}
-                <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-100 space-y-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-blue-900">Créer un objectif sur-mesure</p>
-                  <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Dîme (Obligatoire 10%)
+                    </label>
                     <input
-                      type="text"
-                      placeholder="Nom du bloc (ex: Études universitaires)"
-                      value={customTitle}
-                      onChange={(e) => setCustomTitle(e.target.value)}
-                      className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none"
+                      type="number"
+                      readOnly
+                      value={10}
+                      className="w-full p-3 bg-slate-100 border border-slate-300 rounded-xl text-sm font-bold text-slate-600 cursor-not-allowed"
                     />
-                    <input
-                      type="text"
-                      placeholder="Question de suivi (ex: As-tu révisé 2h aujourd'hui ?)"
-                      value={customQuestion}
-                      onChange={(e) => setCustomQuestion(e.target.value)}
-                      className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none"
-                    />
-                    <div className="grid grid-cols-2 gap-2">
-                      <select
-                        value={customFreq}
-                        onChange={(e) => setCustomFreq(e.target.value as any)}
-                        className="p-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none font-medium"
-                      >
-                        <option value="daily">Suivi Quotidien</option>
-                        <option value="weekly">Suivi Hebdomadaire</option>
-                      </select>
-                      <select
-                        value={customRespType}
-                        onChange={(e) => setCustomRespType(e.target.value as any)}
-                        className="p-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none font-medium"
-                      >
-                        <option value="boolean">Oui / Non</option>
-                        <option value="number">Nombre (chiffre)</option>
-                        <option value="text">Texte libre</option>
-                      </select>
-                    </div>
                   </div>
-                  <Button variant="secondary" size="sm" onClick={handleAddCustomGoal} icon={<Plus className="w-4 h-4" />}>
-                    Ajouter ce bloc sur-mesure
-                  </Button>
+
+                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                      Offrandes libres (%)
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={100}
+                      value={config.donsOffrandes?.offrandePercentage || 10}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          donsOffrandes: {
+                            ...config.donsOffrandes,
+                            offrandePercentage: Number(e.target.value),
+                          },
+                        })
+                      }
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-emerald-900 outline-none"
+                    />
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Stepper Footer Controls */}
-            <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
-              <Button
-                type="button"
-                variant="outline"
-                size="md"
-                onClick={() => {
-                  if (step > 1) setStep(step - 1);
-                  else setShowIntroGuide(true);
-                }}
-                icon={<ArrowLeft className="w-4 h-4" />}
-              >
-                Précédent
-              </Button>
+            {/* STEP 13: PROJETS 2026 */}
+            {step === 13 && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-2xl bg-amber-500 text-blue-950">
+                    <Briefcase className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold font-heading text-slate-900">Étape 13. Domaine des Projets 2026</h4>
+                    <p className="text-xs text-slate-500">Projets financiers, spirituels et professionnels</p>
+                  </div>
+                </div>
 
-              {step < 12 ? (
-                <Button
-                  type="button"
-                  variant="gold"
-                  size="md"
-                  onClick={() => setStep(step + 1)}
-                  icon={<ArrowRight className="w-4 h-4" />}
-                  iconPosition="right"
-                >
-                  Suivant ({step + 1}/12)
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                      Projet Financier
+                    </label>
+                    <input
+                      type="text"
+                      value={config.projets?.financialProject || ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          projets: {
+                            ...(config.projets || { enabled: true }),
+                            financialProject: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="Ex: Ouvrir ma boutique de vente de produits digitaux"
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                      Projet Spirituel
+                    </label>
+                    <input
+                      type="text"
+                      value={config.projets?.spiritualProject || ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          projets: {
+                            ...(config.projets || { enabled: true }),
+                            spiritualProject: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="Ex: Lancer ma chaîne YouTube chrétienne"
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                      Projet Professionnel & Formations
+                    </label>
+                    <input
+                      type="text"
+                      value={config.projets?.professionalProject || ""}
+                      onChange={(e) =>
+                        setConfig({
+                          ...config,
+                          projets: {
+                            ...(config.projets || { enabled: true }),
+                            professionalProject: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="Ex: Neuromarketing, Permis C, Anglais 100 mots"
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Modal Bottom Stepper Navigation */}
+            <div className="pt-4 border-t border-slate-200 flex items-center justify-between">
+              {step > 1 ? (
+                <Button variant="outline" size="sm" onClick={() => setStep(step - 1)} icon={<ArrowLeft className="w-4 h-4" />}>
+                  Précédent
                 </Button>
               ) : (
-                <Button
-                  type="button"
-                  variant="gold"
-                  size="lg"
-                  onClick={handleSaveAll}
-                  icon={<CheckCircle2 className="w-5 h-5" />}
-                >
-                  Enregistrer les objectifs 2026
+                <Button variant="outline" size="sm" onClick={() => setShowIntroGuide(true)}>
+                  Guide d'intro
+                </Button>
+              )}
+
+              {step < totalSteps ? (
+                <Button variant="gold" size="sm" onClick={() => setStep(step + 1)} icon={<ArrowRight className="w-4 h-4" />} iconPosition="right">
+                  Étape suivante
+                </Button>
+              ) : (
+                <Button variant="gold" size="md" onClick={handleSaveConfig} icon={<CheckCircle2 className="w-4 h-4" />}>
+                  Enregistrer & Activer mes Objectifs 2026
                 </Button>
               )}
             </div>
           </div>
         )}
       </div>
-    </div>
+    </Modal>
   );
 };

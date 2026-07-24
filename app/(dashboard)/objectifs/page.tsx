@@ -17,6 +17,10 @@ import {
   History,
   CheckCircle2,
   RefreshCw,
+  Flame,
+  Dumbbell,
+  Briefcase,
+  DollarSign,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -52,7 +56,7 @@ export default function ObjectifsPage() {
 
   const handleWizardSaved = (newVersion: number) => {
     loadData();
-    setNotification(`Objectifs 2026 enregistrés sous la version v${newVersion} !`);
+    setNotification(`Objectifs 2026 enregistrés et activés sous la version v${newVersion} !`);
     setTimeout(() => setNotification(null), 4000);
   };
 
@@ -72,7 +76,7 @@ export default function ObjectifsPage() {
             </Badge>
           </div>
           <p className="text-xs text-slate-500">
-            Structure dynamique pilotant votre suivi quotidien et vos comptes rendus au FD.
+            Structure dynamique pilotant votre suivi quotidien, vos comptes rendus et votre transformation.
           </p>
         </div>
 
@@ -102,7 +106,7 @@ export default function ObjectifsPage() {
             onClick={() => setWizardOpen(true)}
             icon={<RefreshCw className="w-4 h-4" />}
           >
-            Relancer le Wizard d'objectifs
+            Modifier / Planifier mes Objectifs 2026
           </Button>
         </div>
       </div>
@@ -119,10 +123,10 @@ export default function ObjectifsPage() {
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
             <Sparkles className="w-4 h-4 fill-amber-300" />
-            <span>Guide d'introduction de A à Z</span>
+            <span>Guide de Configuration de A à Z</span>
           </div>
           <p className="text-xs text-blue-200">
-            Besoin de revoir comment vos objectifs alimentent automatiquement vos bilans spirituels ?
+            Configurez facilement vos objectifs ÊTRE (caractère) et FAIRE (discipline, prière, jeûne, finances, projets).
           </p>
         </div>
         <Button
@@ -131,12 +135,44 @@ export default function ObjectifsPage() {
           className="bg-white/10 text-white border-white/20 hover:bg-white/20 shrink-0"
           onClick={() => setWizardOpen(true)}
         >
-          Consulter le guide
+          Ouvrir le guide
         </Button>
       </div>
 
-      {/* 12 OBJECTIVES CARDS GRID */}
+      {/* OBJECTIVES CARDS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* 0. PARTIE I - ÊTRE & CARACTÈRE */}
+        {config.etreCaractere && (
+          <Card variant="gradient" hoverEffect className="space-y-3 lg:col-span-3 border-l-4 border-l-blue-900">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-blue-900 text-amber-400 font-bold">
+                  <Heart className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold font-heading text-slate-900">PARTIE I — L'ÊTRE : Fruit de l'Esprit & Caractère</h3>
+                  <p className="text-xs text-slate-500">Transformation à l'image de Christ & ministères</p>
+                </div>
+              </div>
+              <Badge variant="gold" size="sm">Priorité Spirituelle</Badge>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
+              <div className="p-3 bg-white rounded-xl border border-slate-200">
+                <strong className="text-blue-900 block">Fruit de l'Esprit :</strong>
+                <span>{config.etreCaractere.fruitEsprit}</span>
+              </div>
+              <div className="p-3 bg-white rounded-xl border border-slate-200">
+                <strong className="text-rose-900 block">Vices à abandonner :</strong>
+                <span>{config.etreCaractere.vicesToAbandon.join(", ")}</span>
+              </div>
+              <div className="p-3 bg-white rounded-xl border border-slate-200">
+                <strong className="text-emerald-900 block">Connaissance de Dieu :</strong>
+                <span>{config.etreCaractere.godKnowledgeGoal}</span>
+              </div>
+            </div>
+          </Card>
+        )}
+
         {/* 1. Prière Personnelle */}
         <Card variant="gradient" hoverEffect className="space-y-3">
           <div className="flex items-start justify-between">
@@ -151,9 +187,9 @@ export default function ObjectifsPage() {
             </Badge>
           </div>
           <p className="text-2xl font-extrabold font-heading text-blue-900">
-            {config.prierePersonnelle.dailyMinutes} <span className="text-xs font-normal text-slate-500">min / jour</span>
+            {config.prierePersonnelle.dailyMinutes} <span className="text-xs font-normal text-slate-500">min / jour ({((config.prierePersonnelle.dailyMinutes || 0) / 60).toFixed(1)}h)</span>
           </p>
-          <p className="text-xs text-slate-500">Temps d'intimité quotidienne suivi chaque soir.</p>
+          <p className="text-xs text-slate-500">{config.prierePersonnelle.customNotes || "Prière seule quotidienne."}</p>
         </Card>
 
         {/* 2. Prière de Groupe */}
@@ -201,7 +237,7 @@ export default function ObjectifsPage() {
               <div className="p-2.5 rounded-xl bg-purple-50 text-purple-600">
                 <BookMarked className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold font-heading text-slate-900">4. Méditation</h3>
+              <h3 className="text-sm font-bold font-heading text-slate-900">4. Méditation Spirituelle</h3>
             </div>
             <Badge variant="info" size="sm">Actif</Badge>
           </div>
@@ -211,14 +247,51 @@ export default function ObjectifsPage() {
           <p className="text-xs text-slate-500">Mémorisation & réflexion profonde.</p>
         </Card>
 
-        {/* 5. Évangélisation */}
+        {/* 5. JEÛNE & CROISADE */}
+        {config.jeune && (
+          <Card variant="gradient" hoverEffect className="space-y-3">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600">
+                  <Flame className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-bold font-heading text-slate-900">5. Jeûne & Prière Prolonge</h3>
+              </div>
+              <Badge variant="gold" size="sm">Actif</Badge>
+            </div>
+            <p className="text-xs text-slate-700 font-medium">
+              {config.jeune.full3DayFastsCount} jeûnes de 3 jours • {config.jeune.partial100DayFast ? "Jeûne 100 jours partiel" : ""} • {config.jeune.crusadeDaysCount}j croisade.
+            </p>
+          </Card>
+        )}
+
+        {/* 6. MÉMORISATION DE LA PAROLE */}
+        {config.memorisation && (
+          <Card variant="gradient" hoverEffect className="space-y-3">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-blue-50 text-blue-700">
+                  <BookMarked className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-bold font-heading text-slate-900">6. Mémorisation de la Parole</h3>
+              </div>
+              <Badge variant="info" size="sm">Actif</Badge>
+            </div>
+            <p className="text-2xl font-extrabold font-heading text-blue-900">
+              {config.memorisation.versesPerWeek} <span className="text-xs font-normal text-slate-500">versets / semaine</span>
+            </p>
+            <p className="text-xs text-slate-500">{config.memorisation.targetBook}</p>
+          </Card>
+        )}
+
+        {/* 7. Évangélisation */}
         <Card variant="gradient" hoverEffect className="space-y-3">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600">
                 <Heart className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold font-heading text-slate-900">5. Évangélisation</h3>
+              <h3 className="text-sm font-bold font-heading text-slate-900">7. Évangélisation & Âmes</h3>
             </div>
             <Badge variant="success" size="sm">Actif</Badge>
           </div>
@@ -226,134 +299,132 @@ export default function ObjectifsPage() {
             {config.evangelisation.weeklyPeopleCount} <span className="text-xs font-normal text-slate-500">personnes / sem.</span>
           </p>
           <p className="text-xs text-slate-500">
-            Suivi traités : {config.evangelisation.trackTracts ? "Oui" : "Non"}
+            Traité(s) : {config.evangelisation.plannedTractsCount || 500} distribués • Cible : {config.evangelisation.soulsTargetCount || 5} âmes baptisées.
           </p>
         </Card>
 
-        {/* 6. Littérature Chrétienne */}
+        {/* 8. Littérature Chrétienne */}
         <Card variant="gradient" hoverEffect className="space-y-3">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600">
                 <BookOpen className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold font-heading text-slate-900">6. Littérature Chrétienne</h3>
+              <h3 className="text-sm font-bold font-heading text-slate-900">8. Littérature Chrétienne</h3>
             </div>
             <Badge variant="gold" size="sm">Actif</Badge>
           </div>
           <p className="text-2xl font-extrabold font-heading text-amber-800">
             {config.litteratureChretienne.weeklyPagesCount} <span className="text-xs font-normal text-slate-500">pages / sem.</span>
           </p>
-          <p className="text-xs text-slate-500">Rappel livres terminés actif.</p>
+          <p className="text-xs text-slate-500">Objectif : {config.litteratureChretienne.booksCountTarget || 15} livres à lire.</p>
         </Card>
 
-        {/* 7. Retraites Spirituelles */}
+        {/* 9. Retraites Spirituelles */}
         <Card variant="gradient" hoverEffect className="space-y-3">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-xl bg-teal-50 text-teal-600">
                 <Award className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold font-heading text-slate-900">7. Retraites Spirituelles</h3>
+              <h3 className="text-sm font-bold font-heading text-slate-900">9. Retraites Spirituelles</h3>
             </div>
             <Badge variant="info" size="sm">Actif</Badge>
           </div>
           <p className="text-base font-bold text-teal-900">
             {config.retraitesSpirituelles.frequencyPerYear}
           </p>
-          <p className="text-xs text-slate-500">Temps de mise à l'écart planifiés.</p>
+          <p className="text-xs text-slate-500">Durée : {config.retraitesSpirituelles.retreatDurationHours || 24}h par retraite.</p>
         </Card>
 
-        {/* 8. Dons / Dîmes */}
+        {/* 10. OBJECTIFS PHYSIQUES (SPORT) */}
+        {config.objectifsPhy && (
+          <Card variant="gradient" hoverEffect className="space-y-3">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-rose-50 text-rose-600">
+                  <Dumbbell className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-bold font-heading text-slate-900">10. Santé & Sport</h3>
+              </div>
+              <Badge variant="info" size="sm">Actif</Badge>
+            </div>
+            <p className="text-2xl font-extrabold font-heading text-rose-900">
+              {config.objectifsPhy.sessionsPerWeek} <span className="text-xs font-normal text-slate-500">session(s) / semaine</span>
+            </p>
+            <p className="text-xs text-slate-500">{config.objectifsPhy.targetSport}</p>
+          </Card>
+        )}
+
+        {/* 11. MINISTÈRE PASTORAL & DISCIPOLAT */}
+        {config.ministerePastoral && (
+          <Card variant="gradient" hoverEffect className="space-y-3">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-purple-50 text-purple-600">
+                  <Users className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-bold font-heading text-slate-900">11. Ministère Pastoral & Formation</h3>
+              </div>
+              <Badge variant="gold" size="sm">Actif</Badge>
+            </div>
+            <div className="space-y-1 text-xs text-slate-700">
+              <p>• {config.ministerePastoral.leadersToTrain} dirigeants à former</p>
+              <p>• {config.ministerePastoral.disciplesToTrain} disciples à former</p>
+              <p>• {config.ministerePastoral.visitsTarget} visites fraternelles chez les frères</p>
+            </div>
+          </Card>
+        )}
+
+        {/* 12. Dons & Offrandes & Galates 6 */}
         <Card variant="gradient" hoverEffect className="space-y-3">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-amber-50 text-amber-800">
-                <Gift className="w-5 h-5" />
+              <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-800">
+                <DollarSign className="w-5 h-5" />
               </div>
-              <h3 className="text-sm font-bold font-heading text-slate-900">8. Dons & Offrandes</h3>
+              <h3 className="text-sm font-bold font-heading text-slate-900">12. Finances, Dîmes & Galates 6</h3>
             </div>
             <Badge variant="gold" size="sm">Actif</Badge>
           </div>
           <div className="space-y-1 text-xs text-slate-700">
-            <p>✓ Dîmes & offrandes suivies</p>
-            {config.donsOffrandes.trackGalates6 && <p>✓ Don "Galates 6" (Enseignants) actif</p>}
+            <p>✓ Dîmes : {config.donsOffrandes.tithePercentage || 10}% (Obligatoire)</p>
+            <p>✓ Offrandes : {config.donsOffrandes.offrandePercentage || 10}%</p>
+            {config.donsOffrandes.trackGalates6 && <p>✓ Galates 6:6 (Dons mensuels aux enseignants)</p>}
           </div>
         </Card>
 
-        {/* 9. Visites Pastorales */}
-        <Card variant="gradient" hoverEffect className="space-y-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-rose-50 text-rose-600">
-                <Users className="w-5 h-5" />
+        {/* 13. PROJETS 2026 */}
+        {config.projets && (
+          <Card variant="gradient" hoverEffect className="space-y-3 lg:col-span-3 border-l-4 border-l-amber-500">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-amber-500 text-blue-950 font-bold">
+                  <Briefcase className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold font-heading text-slate-900">13. Domaine des Projets 2026 (Spirituels & Pro)</h3>
+                  <p className="text-xs text-slate-500">Objectifs financiers, chaîne YouTube, compétences et livres</p>
+                </div>
               </div>
-              <h3 className="text-sm font-bold font-heading text-slate-900">9. Visites Pastorales</h3>
+              <Badge variant="gold" size="sm">Vision 2026</Badge>
             </div>
-            <Badge variant="info" size="sm">Actif</Badge>
-          </div>
-          <p className="text-2xl font-extrabold font-heading text-rose-900">
-            {config.visitesPastorales.monthlyVisitsCount} <span className="text-xs font-normal text-slate-500">visites / mois</span>
-          </p>
-          <p className="text-xs text-slate-500">Encouragement des frères et sœurs.</p>
-        </Card>
-
-        {/* 10. Enseignements */}
-        <Card variant="gradient" hoverEffect className="space-y-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-sky-50 text-sky-600">
-                <Headphones className="w-5 h-5" />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
+              <div className="p-3 bg-white rounded-xl border border-slate-200">
+                <strong className="text-blue-900 block">Projet Financier :</strong>
+                <span>{config.projets.financialProject || "Boutique en ligne"}</span>
               </div>
-              <h3 className="text-sm font-bold font-heading text-slate-900">10. Enseignements Écoutés</h3>
+              <div className="p-3 bg-white rounded-xl border border-slate-200">
+                <strong className="text-amber-900 block">Projet Spirituel :</strong>
+                <span>{config.projets.spiritualProject || "Chaîne YouTube Chrétienne"}</span>
+              </div>
+              <div className="p-3 bg-white rounded-xl border border-slate-200">
+                <strong className="text-indigo-900 block">Projet Professionnel :</strong>
+                <span>{config.projets.professionalProject || "Neuromarketing & Permis C"}</span>
+              </div>
             </div>
-            <Badge variant="info" size="sm">Actif</Badge>
-          </div>
-          <p className="text-2xl font-extrabold font-heading text-sky-900">
-            {config.enseignements.weeklyTeachingsCount} <span className="text-xs font-normal text-slate-500">prédications / sem.</span>
-          </p>
-        </Card>
-
-        {/* 11. Caractère */}
-        <Card variant="gradient" hoverEffect className="space-y-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-amber-50 text-amber-700">
-                <ShieldCheck className="w-5 h-5" />
-              </div>
-              <h3 className="text-sm font-bold font-heading text-slate-900">11. Caractère & Discipline</h3>
-            </div>
-            <Badge variant="gold" size="sm">{config.caractere.axes.length} axes</Badge>
-          </div>
-          <div className="space-y-1">
-            {config.caractere.axes.map((ax) => (
-              <div key={ax.id} className="text-xs bg-white p-2 rounded-lg border border-slate-100">
-                <span className="font-bold text-slate-900">{ax.name}</span> : <span className="text-blue-700 font-medium">{ax.targetGoal}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* 12. Objectifs Additionnels */}
-        <Card variant="gradient" hoverEffect className="space-y-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <h3 className="text-sm font-bold font-heading text-slate-900">12. Blocs Sur-Mesure</h3>
-            </div>
-            <Badge variant="success" size="sm">{config.custom.items.length} blocs</Badge>
-          </div>
-          <div className="space-y-1">
-            {config.custom.items.map((cust) => (
-              <div key={cust.id} className="text-xs bg-white p-2 rounded-lg border border-slate-100">
-                <p className="font-bold text-slate-900">{cust.title}</p>
-                <p className="text-[11px] text-slate-500">{cust.question}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
+          </Card>
+        )}
       </div>
 
       {/* Objectives Wizard Modal Component */}

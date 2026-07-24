@@ -60,16 +60,29 @@ export interface TeachingItem {
 }
 
 export interface FullObjectivesConfig {
-  prierePersonnelle: { enabled: boolean; dailyMinutes: number; dailyHours?: number };
+  etreCaractere: {
+    enabled: boolean;
+    fruitEsprit: string;
+    vicesToAbandon: string[];
+    godKnowledgeGoal: string;
+    personalMinistryWorship: string;
+    commonMinistryGifts: string[];
+  };
+  prierePersonnelle: { enabled: boolean; dailyMinutes: number; dailyHours?: number; customNotes?: string };
   priereDeGroupe: { enabled: boolean; events: GroupPrayerEvent[] };
   lectureBiblique: { enabled: boolean; dailyChapters: number; weeklyChapters: number };
   meditation: { enabled: boolean; dailyMinutes: number; dailyHours?: number };
-  evangelisation: { enabled: boolean; weeklyPeopleCount: number; trackTracts: boolean };
-  litteratureChretienne: { enabled: boolean; weeklyPagesCount: number; trackCompletedBooks: boolean };
+  jeune: { enabled: boolean; full3DayFastsCount: number; partial100DayFast: boolean; crusadeDaysCount: number; customNotes?: string };
+  memorisation: { enabled: boolean; versesPerWeek: number; targetBook: string };
+  evangelisation: { enabled: boolean; weeklyPeopleCount: number; trackTracts: boolean; plannedTractsCount?: number; soulsTargetCount?: number };
+  litteratureChretienne: { enabled: boolean; weeklyPagesCount: number; trackCompletedBooks: boolean; booksCountTarget?: number };
   retraitesSpirituelles: { enabled: boolean; frequencyPerYear: string; plannedCount: number; periodUnit?: "semaine" | "mois" | "annee"; retreatDurationHours?: number };
-  donsOffrandes: { enabled: boolean; trackTithe: boolean; trackGalates6: boolean };
+  objectifsPhy: { enabled: boolean; targetSport: string; sessionsPerWeek: number };
+  ministerePastoral: { enabled: boolean; leadersToTrain: number; disciplesToTrain: number; visitsTarget: number };
+  donsOffrandes: { enabled: boolean; trackTithe: boolean; trackGalates6: boolean; tithePercentage: number; offrandePercentage: number; galates6Notes?: string; familyGiftsNotes?: string };
   visitesPastorales: { enabled: boolean; monthlyVisitsCount: number };
   enseignements: { enabled: boolean; weeklyTeachingsCount: number };
+  projets: { enabled: boolean; financialProject?: string; spiritualProject?: string; professionalProject?: string; customProjects?: string[] };
   caractere: { enabled: boolean; axes: CharacterAxis[] };
   custom: { enabled: boolean; items: CustomGoalItem[] };
 }

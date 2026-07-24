@@ -21,15 +21,20 @@ import { CircularProgressBar, LinearProgressBar } from "@/components/ui/Progress
 import { Badge } from "@/components/ui/Badge";
 import { BgdAssistantChat } from "@/components/ai/BgdAssistantChat";
 import { getCurrentUserSession } from "@/lib/auth-service";
+import { getCurrentObjectivesConfig } from "@/lib/objectifs-service";
+import { FullObjectivesConfig } from "@/types";
 
 export default function DashboardOverviewPage() {
   const [userSession, setUserSession] = useState<any>(null);
+  const [objectives, setObjectives] = useState<FullObjectivesConfig | null>(null);
   const [aiEncouragement, setAiEncouragement] = useState<string>("");
   const [aiTrendAlert, setAiTrendAlert] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const session = getCurrentUserSession();
+    const currentObjs = getCurrentObjectivesConfig();
     setUserSession(session);
+    setObjectives(currentObjs);
 
     // Fetch dynamic AI Pastoral Encouragement & Trend Detection
     const fetchAiEncouragement = async () => {
@@ -58,6 +63,11 @@ export default function DashboardOverviewPage() {
   }, []);
 
   const discipleFirstName = userSession?.firstName || "Jean";
+
+  // Dynamic Targets from current active objectives config
+  const prayerDailyTarget = objectives?.prierePersonnelle.dailyMinutes || 90;
+  const chaptersDailyTarget = objectives?.lectureBiblique.dailyChapters || 7;
+  const meditationDailyTarget = objectives?.meditation.dailyMinutes || 60;
 
   return (
     <div className="space-y-8 relative">
@@ -121,7 +131,7 @@ export default function DashboardOverviewPage() {
         <StatCard
           title="Temps de Prière"
           value="5h 15m"
-          subtitle="Cette semaine"
+          subtitle={`Objectif : ${(prayerDailyTarget / 60).toFixed(1)}h/jour`}
           variant="blue"
           icon={<Clock className="w-6 h-6" />}
           trend={{ value: "+1h 20m", isPositive: true }}
@@ -130,7 +140,7 @@ export default function DashboardOverviewPage() {
         <StatCard
           title="Chapitres Bibliques"
           value="32 Chap."
-          subtitle="Livres : Jean & Actes"
+          subtitle={`Cible : ${chaptersDailyTarget} chap/jour`}
           variant="gold"
           icon={<BookOpen className="w-6 h-6" />}
           trend={{ value: "+8", isPositive: true }}
@@ -160,12 +170,12 @@ export default function DashboardOverviewPage() {
         <Card variant="gradient" className="lg:col-span-2 space-y-6">
           <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-slate-100">
             <div>
-              <CardTitle>Objectifs de la Semaine</CardTitle>
-              <p className="text-xs text-slate-500">Progression globale de vos engagements spirituels</p>
+              <CardTitle>Objectifs de la Semaine (Synchronisés)</CardTitle>
+              <p className="text-xs text-slate-500">Mise à jour en temps réel selon vos objectifs 2026 activés</p>
             </div>
             <Link href="/objectifs">
               <Button variant="ghost" size="sm" icon={<ArrowUpRight className="w-4 h-4" />}>
-                Voir tout
+                Modifier
               </Button>
             </Link>
           </CardHeader>
@@ -173,22 +183,22 @@ export default function DashboardOverviewPage() {
           <CardContent className="space-y-5 pt-2">
             <LinearProgressBar
               value={85}
-              label="Prière quotidienne (Objectif 45 min/jour)"
+              label={`Prière quotidienne (Objectif ${prayerDailyTarget} min/jour = ${(prayerDailyTarget / 60).toFixed(1)}h)`}
               colorVariant="blue"
             />
             <LinearProgressBar
               value={100}
-              label="Lecture Biblique (4 chapitres/jour)"
+              label={`Lecture Biblique (Objectif ${chaptersDailyTarget} chapitres/jour)`}
               colorVariant="gold"
             />
             <LinearProgressBar
-              value={60}
-              label="Méditation & Mémorisation de versets"
+              value={75}
+              label={`Méditation Spirituelle (Objectif ${meditationDailyTarget} min/jour)`}
               colorVariant="emerald"
             />
             <LinearProgressBar
-              value={50}
-              label="Jeûne & Intercession (1 jour/semaine)"
+              value={60}
+              label={`Jeûne & Croisade (${objectives?.jeune?.full3DayFastsCount || 8} jeûnes 3j & partiel)`}
               colorVariant="blue"
             />
           </CardContent>
@@ -201,12 +211,12 @@ export default function DashboardOverviewPage() {
 
           <div className="py-2">
             <CircularProgressBar
-              value={82}
+              value={88}
               size={160}
               strokeWidth={14}
               colorVariant="gold"
               label="Accompli"
-              sublabel="Semaine 29"
+              sublabel="Semaine en cours"
             />
           </div>
 
@@ -222,7 +232,7 @@ export default function DashboardOverviewPage() {
         <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 pb-4">
           <div>
             <CardTitle>Derniers Comptes Rendus au FD</CardTitle>
-            <p className="text-xs text-slate-500">Historique des bilans transmis à votre Faiseur de Disciple</p>
+            <p className="text-xs text-slate-500">Historique des bilans agrégés transmis à votre Faiseur de Disciple</p>
           </div>
           <Link href="/comptes-rendus">
             <Button variant="outline" size="sm">
@@ -239,9 +249,9 @@ export default function DashboardOverviewPage() {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-slate-900 font-heading">
-                  Compte Rendu Spirituel - Semaine du 15 au 21 Juillet
+                  Compte Rendu Spirituel - Semaine Hebdomadaire
                 </h4>
-                <p className="text-xs text-slate-500">Mentor : {userSession?.activeMentorEmail || "Past. Paul"} • Note globale : 8.8/10</p>
+                <p className="text-xs text-slate-500">Mentor : {userSession?.activeMentorEmail || "Past. Paul"} • Synchronisé automatiquement chaque soir</p>
               </div>
             </div>
             <div className="flex items-center gap-3 shrink-0">
@@ -250,7 +260,7 @@ export default function DashboardOverviewPage() {
               </Badge>
               <Link href="/comptes-rendus">
                 <Button variant="ghost" size="sm">
-                  Consulter
+                  Consulter & Imprimer
                 </Button>
               </Link>
             </div>
@@ -258,7 +268,7 @@ export default function DashboardOverviewPage() {
         </CardContent>
       </Card>
 
-      {/* USE CASE 5: ASSISTANT BGD FLOATING CONVERSATIONAL AI CHAT WIDGET */}
+      {/* ASSISTANT BGD FLOATING CONVERSATIONAL AI CHAT WIDGET */}
       <BgdAssistantChat />
     </div>
   );
