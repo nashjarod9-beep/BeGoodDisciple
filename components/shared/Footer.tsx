@@ -12,7 +12,7 @@ export const Footer: React.FC = () => {
           <div className="space-y-4 md:col-span-1">
             <BgdLogo size="md" className="[&_span]:text-white" />
             <p className="text-xs text-slate-400 leading-relaxed">
-              BeGoodDisciple (BGD) est la plateforme SaaS dédiée à l'édification, la redevabilité et le suivi de progression spirituelle entre Disciples et leurs Mentors.
+              BeGoodDisciple (BGD) est la plateforme SaaS dédiée à l'édification, le suivi et le compte rendu de progression spirituelle entre Disciples et leurs Mentors.
             </p>
           </div>
 

@@ -109,7 +109,7 @@ export default function OnboardingPage() {
 
               <div className="p-4 rounded-xl bg-white border border-slate-200/80 space-y-2">
                 <ShieldCheck className="w-6 h-6 text-emerald-600" />
-                <h4 className="text-xs font-bold font-heading text-slate-900">3. Redevabilité</h4>
+                <h4 className="text-xs font-bold font-heading text-slate-900">3. Compte Rendu</h4>
                 <p className="text-[11px] text-slate-500">Des encouragements et conseils ciblés de votre FD.</p>
               </div>
             </div>
@@ -280,7 +280,7 @@ export default function OnboardingPage() {
                 icon={<ArrowRight className="w-5 h-5" />}
                 iconPosition="right"
               >
-                {loading ? "Enregistrement..." : "Activer la redevabilité"}
+                {loading ? "Enregistrement..." : "Activer les comptes rendus"}
               </Button>
             </div>
           </form>
@@ -298,7 +298,7 @@ export default function OnboardingPage() {
                 Félicitations, {firstName} !
               </h2>
               <p className="text-sm text-slate-600 max-w-md mx-auto">
-                Votre compte BeGoodDisciple est configuré et la redevabilité spirituelle avec <strong className="text-blue-900 font-bold">{mentorEmail}</strong> est activée.
+                Votre compte BeGoodDisciple est configuré et le suivi spirituel avec <strong className="text-blue-900 font-bold">{mentorEmail}</strong> est activé.
               </p>
             </div>
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BeGoodDisciple (BGD) - Suivi & Mentorat Spirituel",
+  title: "BeGoodDisciple (BGD) - Suivi & Compte Rendu Spirituel",
   description:
     "Plateforme SaaS de suivi de vie spirituelle permettant aux disciples d'envoyer automatiquement leurs comptes rendus à leur mentor (Faiseur de Disciple).",
   icons: {

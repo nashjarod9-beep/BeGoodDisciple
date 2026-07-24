@@ -34,14 +34,14 @@ export default function LandingPage() {
             {/* Top pill badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-50 to-amber-50 border border-blue-200/80 text-blue-900 text-xs font-semibold shadow-sm">
               <Sparkles className="w-4 h-4 text-amber-500 fill-amber-400" />
-              <span>La plateforme N°1 de suivi & redevabilité spirituelle</span>
+              <span>La plateforme N°1 de suivi & compte rendu spirituel</span>
             </div>
 
             {/* Main Catchphrase Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-heading text-slate-900 tracking-tight leading-[1.15]">
               Grandissez dans votre foi avec{" "}
               <span className="bgd-text-gradient">intention</span> &{" "}
-              <span className="bgd-text-gradient-gold">redevabilité</span>.
+              <span className="bgd-text-gradient-gold">suivi</span>.
             </h1>
 
             {/* Concept summary description */}
@@ -127,7 +127,7 @@ export default function LandingPage() {
                   <div>
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold uppercase tracking-wider text-amber-300">
-                        Statut Redevabilité
+                        Statut du compte rendu
                       </span>
                       <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
                     </div>
@@ -154,7 +154,7 @@ export default function LandingPage() {
             Le Principe BeGoodDisciple
           </h2>
           <h3 className="text-3xl sm:text-4xl font-extrabold font-heading text-slate-900">
-            Comment fonctionne la redevabilité spirituelle ?
+            Comment fonctionne le suivi & compte rendu spirituel ?
           </h3>
           <p className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto">
             BGD simplifie le processus d'accompagnement spirituel en automatisant les synthèses et en garantissant une communication fluide entre le Disciple et son mentor (FD).

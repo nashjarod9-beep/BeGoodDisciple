@@ -90,7 +90,7 @@ export const BgdLogo: React.FC<BgdLogoProps> = ({
             <span className="text-amber-500">Disciple</span>
           </span>
           <span className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold mt-0.5">
-            Suivi & Mentorat Spirituel
+            Suivi & Compte Rendu Spirituel
           </span>
         </div>
       )}

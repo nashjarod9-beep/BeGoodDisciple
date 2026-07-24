@@ -70,7 +70,7 @@ export default function ProfilPage() {
 
     if (res.success && res.session) {
       setSession(res.session);
-      setSavedSuccess("Profil et paramètres de redevabilité mis à jour avec succès !");
+      setSavedSuccess("Profil et paramètres de suivi mis à jour avec succès !");
       setTimeout(() => setSavedSuccess(null), 4000);
     }
   };
@@ -184,7 +184,7 @@ export default function ProfilPage() {
         <Card variant="gradient" className="space-y-6">
           <CardHeader className="border-b border-slate-100 pb-4 flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Faiseur de Disciple (FD) & Redevabilité</CardTitle>
+              <CardTitle>Faiseur de Disciple (FD) & Compte Rendu</CardTitle>
               <p className="text-xs text-slate-500">Adresse email du mentor qui reçoit vos synthèses</p>
             </div>
             <Badge variant="gold" size="md">

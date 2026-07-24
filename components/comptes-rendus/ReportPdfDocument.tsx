@@ -82,7 +82,7 @@ export const ReportPdfDocument: React.FC<ReportPdfDocumentProps> = ({
               COMPTE RENDU SPIRITUEL
             </h1>
             <p className="text-xs text-amber-300 font-bold uppercase tracking-widest">
-              BeGoodDisciple (BGD) • Redevabilité Spirituelle
+              BeGoodDisciple (BGD) • Suivi & Compte Rendu Spirituel
             </p>
             <p className="text-xs text-blue-200">{report.titre}</p>
           </div>

@@ -22,7 +22,7 @@ export default function AuthLayout({
 
         {/* Footer info */}
         <p className="text-center text-xs text-slate-500">
-          © {new Date().getFullYear()} BeGoodDisciple (BGD) • Plateforme de Redevabilité Spirituelle
+          © {new Date().getFullYear()} BeGoodDisciple (BGD) • Plateforme de Suivi & Compte Rendu Spirituel
         </p>
       </div>
     </div>

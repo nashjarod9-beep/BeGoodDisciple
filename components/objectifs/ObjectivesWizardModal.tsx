@@ -226,7 +226,7 @@ export const ObjectivesWizardModal: React.FC<ObjectivesWizardModalProps> = ({
               </div>
 
               <div className="p-4 rounded-xl bg-white border border-slate-200/80 space-y-2">
-                <Badge variant="info" size="sm">Étape Z : Suivi & Redevabilité</Badge>
+                <Badge variant="info" size="sm">Étape Z : Suivi & Compte Rendu</Badge>
                 <h4 className="text-sm font-bold font-heading text-slate-900">Pilote votre suivi quotidien</h4>
                 <p className="text-xs text-slate-500 leading-relaxed">
                   Chaque soir, votre tableau de bord vous proposera exactement les champs correspondant à vos choix. Vos comptes rendus au FD seront calculés automatiquement.

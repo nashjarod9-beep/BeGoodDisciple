@@ -18,7 +18,7 @@ export default function HelpFaqPage() {
     {
       category: "Fonctionnement général",
       question: "Qu'est-ce que BeGoodDisciple (BGD) ?",
-      answer: "BeGoodDisciple est une plateforme SaaS de redevabilité spirituelle qui aide un disciple à définir ses objectifs de l'année, enregistrer quotidiennement ses progrès (prière, lecture, méditation, évangélisation), et transmettre automatiquement des comptes rendus structurés à son Faiseur de Disciple (mentor).",
+      answer: "BeGoodDisciple est une plateforme SaaS de suivi & compte rendu spirituel qui aide un disciple à définir ses objectifs de l'année, enregistrer quotidiennement ses progrès (prière, lecture, méditation, évangélisation), et transmettre automatiquement des comptes rendus structurés à son Faiseur de Disciple (mentor).",
     },
     {
       category: "Objectifs & Suivi",
@@ -68,7 +68,7 @@ export default function HelpFaqPage() {
 
         <Card variant="gradient" className="space-y-2 p-5">
           <Send className="w-6 h-6 text-amber-600" />
-          <h4 className="text-sm font-bold font-heading text-slate-900">Redevabilité Automatisée</h4>
+          <h4 className="text-sm font-bold font-heading text-slate-900">Comptes Rendus Automatisés</h4>
           <p className="text-xs text-slate-500">Comptes rendus agrégés transmis en PDF à votre mentor par email.</p>
         </Card>
 
