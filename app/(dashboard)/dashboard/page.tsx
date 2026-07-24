@@ -85,6 +85,16 @@ export default function DashboardOverviewPage() {
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
+            <Link href="/cours-planification">
+              <Button
+                variant="secondary"
+                size="md"
+                icon={<BookOpen className="w-4 h-4" />}
+              >
+                Cours : Planifier son Année
+              </Button>
+            </Link>
+
             <Link href="/suivi">
               <Button
                 variant="gold"

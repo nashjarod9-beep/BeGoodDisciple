@@ -1,6 +1,8 @@
 import { SuiviQuotidienData, DailyTrackingEntriesData } from "@/types";
 import { getCurrentObjectivesConfig } from "./objectifs-service";
-import { format } from "date-fns";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
+import { saveReportRecord, aggregateDailyDataForPeriod, createDefaultPeriodQuestions } from "./reports-aggregation-service";
+import { getCurrentUserSession } from "./auth-service";
 
 const SUIVI_STORAGE_KEY = "bgd_suivi_quotidien_records";
 const CURRENT_BOOK_KEY = "bgd_current_book_title";
@@ -51,7 +53,6 @@ export function calculateCompletion(
   const config = getCurrentObjectivesConfig();
   const dayNameFormatted = format(new Date(dateStr), "EEEE"); // e.g. "Friday" or "Vendredi"
   
-  // Translate English day name to French if needed for matching
   const dayNameFrMap: Record<string, string> = {
     Monday: "Lundi",
     Tuesday: "Mardi",
@@ -74,7 +75,7 @@ export function calculateCompletion(
     }
   }
 
-  // 2. Prière de Groupe (matching events for today)
+  // 2. Prière de Groupe
   if (config.priereDeGroupe.enabled) {
     const matchingEvents = config.priereDeGroupe.events.filter(
       (ev) => ev.dayOfWeek.toLowerCase() === dayFr.toLowerCase()
@@ -139,7 +140,6 @@ export function calculateCompletion(
     });
   }
 
-  // Fallback if 0 blocks active
   if (totalBlocks === 0) totalBlocks = 1;
   const completionScore = Math.min(100, Math.round((completedBlocks / totalBlocks) * 100));
 
@@ -155,15 +155,15 @@ export function getSuiviForDate(dateStr: string): SuiviQuotidienData {
     return records[dateStr];
   }
 
-  // Default record
   const defaultEntries: DailyTrackingEntriesData = {
-    prierePersonnelle: { minutes: 0, burden: "" },
+    prierePersonnelle: { minutes: 0, burden: "", burdensList: [] },
     lectureBiblique: { chaptersRead: 0 },
     meditation: { minutes: 0 },
     evangelisation: { peopleCount: 0, tractsDistributed: false, tractsCount: 0 },
     litteratureChretienne: { pagesRead: 0, currentBookTitle: getCurrentBookTitle() },
     caractere: {},
     custom: {},
+    enseignements: { teachingsCount: 0, teachingsList: [] },
   };
 
   const { completionScore, totalBlocks } = calculateCompletion(defaultEntries, dateStr);
@@ -180,11 +180,11 @@ export function getSuiviForDate(dateStr: string): SuiviQuotidienData {
 }
 
 /**
- * Saves daily tracking record for a date
+ * Saves daily tracking record for a date and automatically updates active period reports
  */
 export function saveSuiviForDate(dateStr: string, entries: DailyTrackingEntriesData): SuiviQuotidienData {
   const records = getAllSuiviRecords();
-  const { completionScore, totalBlocks, completedBlocks } = calculateCompletion(entries, dateStr);
+  const { completionScore, totalBlocks } = calculateCompletion(entries, dateStr);
 
   const updatedRecord: SuiviQuotidienData = {
     id: records[dateStr]?.id || `suivi-${dateStr}`,
@@ -200,6 +200,62 @@ export function saveSuiviForDate(dateStr: string, entries: DailyTrackingEntriesD
   records[dateStr] = updatedRecord;
   if (typeof window !== "undefined") {
     localStorage.setItem(SUIVI_STORAGE_KEY, JSON.stringify(records));
+  }
+
+  // AUTOMATICALLY RECALCULATE AND UPDATE CURRENT WEEK'S & MONTH'S REPORT
+  try {
+    const targetDate = new Date(dateStr);
+    const weekStart = format(startOfWeek(targetDate, { weekStartsOn: 1 }), "yyyy-MM-dd");
+    const weekEnd = format(endOfWeek(targetDate, { weekStartsOn: 1 }), "yyyy-MM-dd");
+
+    const monthStart = format(startOfMonth(targetDate), "yyyy-MM-dd");
+    const monthEnd = format(endOfMonth(targetDate), "yyyy-MM-dd");
+
+    const session = getCurrentUserSession();
+    const discipleName = `${session?.firstName || "Jean"} ${session?.lastName || "Disciple"}`;
+    const mentorEmail = session?.activeMentorEmail || "pastor.paul@example.com";
+
+    // 1. Update Weekly Report
+    const weeklyAggregated = aggregateDailyDataForPeriod(weekStart, weekEnd);
+    saveReportRecord({
+      id: `rep-auto-hebdo-${weekStart}`,
+      discipleId: "user-demo-1",
+      discipleName,
+      mentorEmail,
+      type: "HEBDO",
+      titre: `Compte rendu de la semaine du ${weekStart} au ${weekEnd}`,
+      dateDebut: weekStart,
+      dateFin: weekEnd,
+      contenuAgrege: weeklyAggregated,
+      reponsesSpecifiques: createDefaultPeriodQuestions("HEBDO"),
+      urlPdf: "#",
+      dateEnvoi: new Date().toISOString(),
+      statutEnvoi: "BROUILLON",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
+    // 2. Update Monthly Report
+    const monthlyAggregated = aggregateDailyDataForPeriod(monthStart, monthEnd);
+    saveReportRecord({
+      id: `rep-auto-mensuel-${monthStart}`,
+      discipleId: "user-demo-1",
+      discipleName,
+      mentorEmail,
+      type: "MENSUEL",
+      titre: `Compte rendu mensuel du mois (${monthStart})`,
+      dateDebut: monthStart,
+      dateFin: monthEnd,
+      contenuAgrege: monthlyAggregated,
+      reponsesSpecifiques: createDefaultPeriodQuestions("MENSUEL"),
+      urlPdf: "#",
+      dateEnvoi: new Date().toISOString(),
+      statutEnvoi: "BROUILLON",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.warn("[Suivi Service] Auto-syncing period reports warning:", err);
   }
 
   return updatedRecord;

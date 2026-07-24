@@ -40,14 +40,33 @@ export interface CustomGoalItem {
   responseType: "boolean" | "number" | "text";
 }
 
+export interface PrayerBurdenItem {
+  id: string;
+  subject: string;
+  durationMinutes: number;
+  timeRange?: string;
+}
+
+export interface StartEndTimeRange {
+  start: string;
+  end: string;
+  durationMinutes: number;
+}
+
+export interface TeachingItem {
+  id: string;
+  title: string;
+  speaker: string;
+}
+
 export interface FullObjectivesConfig {
-  prierePersonnelle: { enabled: boolean; dailyMinutes: number };
+  prierePersonnelle: { enabled: boolean; dailyMinutes: number; dailyHours?: number };
   priereDeGroupe: { enabled: boolean; events: GroupPrayerEvent[] };
   lectureBiblique: { enabled: boolean; dailyChapters: number; weeklyChapters: number };
-  meditation: { enabled: boolean; dailyMinutes: number };
+  meditation: { enabled: boolean; dailyMinutes: number; dailyHours?: number };
   evangelisation: { enabled: boolean; weeklyPeopleCount: number; trackTracts: boolean };
   litteratureChretienne: { enabled: boolean; weeklyPagesCount: number; trackCompletedBooks: boolean };
-  retraitesSpirituelles: { enabled: boolean; frequencyPerYear: string; plannedCount: number };
+  retraitesSpirituelles: { enabled: boolean; frequencyPerYear: string; plannedCount: number; periodUnit?: "semaine" | "mois" | "annee"; retreatDurationHours?: number };
   donsOffrandes: { enabled: boolean; trackTithe: boolean; trackGalates6: boolean };
   visitesPastorales: { enabled: boolean; monthlyVisitsCount: number };
   enseignements: { enabled: boolean; weeklyTeachingsCount: number };
@@ -113,10 +132,18 @@ export interface CompteRenduFullData {
 }
 
 export interface DailyTrackingEntriesData {
-  prierePersonnelle?: { minutes: number; burden?: string };
-  priereDeGroupe?: Record<string, boolean>;
+  prierePersonnelle?: {
+    minutes: number;
+    burden?: string;
+    burdensList?: PrayerBurdenItem[];
+    timeRanges?: StartEndTimeRange[];
+  };
+  priereDeGroupe?: Record<string, { participated: boolean; startTime?: string; endTime?: string } | boolean>;
   lectureBiblique?: { chaptersRead: number };
-  meditation?: { minutes: number };
+  meditation?: {
+    minutes: number;
+    timeRanges?: StartEndTimeRange[];
+  };
   evangelisation?: { peopleCount: number; tractsDistributed?: boolean; tractsCount?: number };
   litteratureChretienne?: { pagesRead: number; currentBookTitle?: string; bookCompletedThisWeek?: boolean; completedBookTitle?: string; completedBookAuthor?: string };
   caractere?: Record<string, { value: string | number | boolean }>;
@@ -124,7 +151,7 @@ export interface DailyTrackingEntriesData {
   retraitesSpirituelles?: { attended: boolean; notes?: string };
   donsOffrandes?: { tithePaid?: boolean; galates6Given?: boolean };
   visitesPastorales?: { visitsCount: number };
-  enseignements?: { teachingsCount: number };
+  enseignements?: { teachingsCount: number; teachingsList?: TeachingItem[] };
 }
 
 export interface SuiviQuotidienData {

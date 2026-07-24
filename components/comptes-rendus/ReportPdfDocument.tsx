@@ -114,7 +114,7 @@ export const ReportPdfDocument: React.FC<ReportPdfDocumentProps> = ({
         <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-50/90 via-blue-50/70 to-white border border-amber-200 shadow-sm space-y-2">
           <div className="flex items-center gap-2 text-amber-900 font-bold font-heading text-xs uppercase tracking-wider">
             <Sparkles className="w-4 h-4 text-amber-600 fill-amber-500" />
-            <span>Synthèse & Encouragement Pastoral (IA DeepSeek)</span>
+            <span>Synthèse & Encouragement Pastoral (Assistant IA)</span>
           </div>
           <p className="text-xs sm:text-sm text-slate-700 leading-relaxed italic font-medium">
             "{aiSummary || "Analyse et encouragements spirituels en cours de génération..."}"
@@ -221,7 +221,7 @@ export const ReportPdfDocument: React.FC<ReportPdfDocumentProps> = ({
 
         {/* Document Footer */}
         <div className="pt-4 border-t border-slate-200 flex justify-between items-center text-[10px] text-slate-400">
-          <span>Généré par BeGoodDisciple (BGD) • Intelligence Artificielle DeepSeek</span>
+          <span>Généré par BeGoodDisciple (BGD) • Assistant IA</span>
           <span>Imprimé le {new Date().toLocaleDateString("fr-FR")}</span>
         </div>
       </div>

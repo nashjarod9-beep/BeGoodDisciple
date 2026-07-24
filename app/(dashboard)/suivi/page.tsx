@@ -24,7 +24,7 @@ import {
   calculateCompletion,
 } from "@/lib/suivi-service";
 import { getCurrentObjectivesConfig } from "@/lib/objectifs-service";
-import { FullObjectivesConfig, DailyTrackingEntriesData, SuiviQuotidienData } from "@/types";
+import { FullObjectivesConfig, DailyTrackingEntriesData, SuiviQuotidienData, PrayerBurdenItem } from "@/types";
 
 export default function SuiviPage() {
   const [selectedDate, setSelectedDate] = useState<string>(getTodayDateString());
@@ -54,28 +54,29 @@ export default function SuiviPage() {
     });
   };
 
-  const handlePrayerRecorded = (minutes: number, burden: string) => {
+  const handlePrayerRecorded = (minutes: number, burdensList: PrayerBurdenItem[], mainBurden: string) => {
     if (!suiviRecord) return;
     const updatedEntries: DailyTrackingEntriesData = {
       ...suiviRecord.entrees,
       prierePersonnelle: {
         minutes,
-        burden: burden || suiviRecord.entrees.prierePersonnelle?.burden || "",
+        burden: mainBurden,
+        burdensList,
       },
     };
     handleEntriesChange(updatedEntries);
     const saved = saveSuiviForDate(selectedDate, updatedEntries);
     setSuiviRecord(saved);
-    setSaveSuccess(`Temps de prière de ${minutes} minute(s) enregistré !`);
-    setTimeout(() => setSaveSuccess(null), 3500);
+    setSaveSuccess(`Temps de prière de ${minutes} minute(s) enregistré et ajouté !`);
+    setTimeout(() => setSaveSuccess(null), 4000);
   };
 
   const handleSaveSuivi = () => {
     if (!suiviRecord) return;
     const saved = saveSuiviForDate(selectedDate, suiviRecord.entrees);
     setSuiviRecord(saved);
-    setSaveSuccess("Suivi quotidien enregistré avec succès !");
-    setTimeout(() => setSaveSuccess(null), 4000);
+    setSaveSuccess("Suivi spirituel quotidien enregistré avec succès ! Vos comptes rendus de la semaine et du mois sont synchronisés en temps réel.");
+    setTimeout(() => setSaveSuccess(null), 5000);
   };
 
   if (!config || !suiviRecord) return null;
@@ -106,8 +107,8 @@ export default function SuiviPage() {
       </div>
 
       {saveSuccess && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+        <div className="p-4 rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 text-xs font-bold flex items-center gap-3 animate-in fade-in">
+          <CheckCircle2 className="w-5 h-5 text-amber-300 shrink-0" />
           <span>{saveSuccess}</span>
         </div>
       )}
@@ -139,12 +140,13 @@ export default function SuiviPage() {
         />
       </Card>
 
-      {/* 1. Prière Personnelle Stopwatch Widget */}
+      {/* 1. Prière Personnelle Stopwatch & Burdens Widget */}
       {config.prierePersonnelle.enabled && (
         <PrayerTimerWidget
           onPrayerRecorded={handlePrayerRecorded}
           currentMinutes={suiviRecord.entrees.prierePersonnelle?.minutes || 0}
-          currentBurden={suiviRecord.entrees.prierePersonnelle?.burden || ""}
+          currentBurdensList={suiviRecord.entrees.prierePersonnelle?.burdensList || []}
+          currentMainBurden={suiviRecord.entrees.prierePersonnelle?.burden || ""}
         />
       )}
 

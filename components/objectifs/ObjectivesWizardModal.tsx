@@ -298,26 +298,53 @@ export const ObjectivesWizardModal: React.FC<ObjectivesWizardModalProps> = ({
                   </div>
 
                   {config.prierePersonnelle.enabled && (
-                    <div className="pt-3 border-t border-slate-200">
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                        Objectif de temps quotidien (Minutes par jour)
-                      </label>
-                      <input
-                        type="number"
-                        min={5}
-                        max={360}
-                        value={config.prierePersonnelle.dailyMinutes}
-                        onChange={(e) =>
-                          setConfig({
-                            ...config,
-                            prierePersonnelle: {
-                              ...config.prierePersonnelle,
-                              dailyMinutes: Number(e.target.value),
-                            },
-                          })
-                        }
-                        className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none focus:ring-2 focus:ring-blue-500"
-                      />
+                    <div className="pt-3 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                          Objectif quotidien (en minutes)
+                        </label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={1440}
+                          value={config.prierePersonnelle.dailyMinutes}
+                          onChange={(e) =>
+                            setConfig({
+                              ...config,
+                              prierePersonnelle: {
+                                ...config.prierePersonnelle,
+                                dailyMinutes: Number(e.target.value),
+                                dailyHours: Number(e.target.value) / 60,
+                              },
+                            })
+                          }
+                          className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                          Équivalent en Heures (ex: 1h30 = 1.5h)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          min={0.1}
+                          value={(config.prierePersonnelle.dailyMinutes / 60).toFixed(1)}
+                          onChange={(e) => {
+                            const hrs = Number(e.target.value);
+                            setConfig({
+                              ...config,
+                              prierePersonnelle: {
+                                ...config.prierePersonnelle,
+                                dailyMinutes: Math.round(hrs * 60),
+                                dailyHours: hrs,
+                              },
+                            });
+                          }}
+                          className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-amber-900 outline-none"
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -622,31 +649,59 @@ export const ObjectivesWizardModal: React.FC<ObjectivesWizardModalProps> = ({
                 </div>
 
                 <div className="space-y-4">
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                      Fréquence souhaitée
-                    </label>
-                    <select
-                      value={config.retraitesSpirituelles.frequencyPerYear}
-                      onChange={(e) =>
-                        setConfig({
-                          ...config,
-                          retraitesSpirituelles: {
-                            ...config.retraitesSpirituelles,
-                            frequencyPerYear: e.target.value,
-                          },
-                        })
-                      }
-                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none"
-                    >
-                      <option value="Trimestrielle (4/an)">Trimestrielle (4 retraites par an)</option>
-                      <option value="Semestrielle (2/an)">Semestrielle (2 retraites par an)</option>
-                      <option value="Annuelle (1/an)">Annuelle (1 retraite par an)</option>
-                    </select>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Fréquence des retraites
+                      </label>
+                      <select
+                        value={config.retraitesSpirituelles.frequencyPerYear}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            retraitesSpirituelles: {
+                              ...config.retraitesSpirituelles,
+                              frequencyPerYear: e.target.value,
+                            },
+                          })
+                        }
+                        className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none"
+                      >
+                        <option value="1 par mois (12/an)">1 retraite de 24h par mois (12/an)</option>
+                        <option value="1 par semaine (52/an)">1 retraite par semaine</option>
+                        <option value="Trimestrielle (4/an)">Trimestrielle (4 retraites par an)</option>
+                        <option value="Semestrielle (2/an)">Semestrielle (2 retraites par an)</option>
+                        <option value="Annuelle (1/an)">Annuelle (1 retraite par an)</option>
+                        <option value="Sur-mesure">Fréquence sur-mesure</option>
+                      </select>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Durée investie par retraite (Heures)
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        max={168}
+                        value={config.retraitesSpirituelles.retreatDurationHours || 24}
+                        onChange={(e) =>
+                          setConfig({
+                            ...config,
+                            retraitesSpirituelles: {
+                              ...config.retraitesSpirituelles,
+                              retreatDurationHours: Number(e.target.value),
+                            },
+                          })
+                        }
+                        placeholder="Ex: 24 heures"
+                        className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-bold text-blue-900 outline-none"
+                      />
+                    </div>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-100 text-xs text-teal-900">
-                    💡 <strong>Encouragement BGD :</strong> Planifiez dès maintenant vos dates dans votre calendrier personnel pour vous assurer de maintenir ce temps d'intimité d'exception.
+                    💡 <strong>Standard du Discipolat :</strong> Une retraite mensuelle de 24 heures est fortement recommandée pour faire le point avec Dieu et renouveler ses forces spirituelles.
                   </div>
                 </div>
               </div>

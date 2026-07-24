@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { format, parseISO } from "date-fns";
 import {
   Users,
@@ -14,10 +14,14 @@ import {
   CheckCircle2,
   Award,
   HelpCircle,
+  Clock,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { FullObjectivesConfig, DailyTrackingEntriesData } from "@/types";
+import { Button } from "@/components/ui/Button";
+import { FullObjectivesConfig, DailyTrackingEntriesData, TeachingItem } from "@/types";
 import { saveCurrentBookTitle, getCurrentBookTitle } from "@/lib/suivi-service";
 
 interface DynamicDailyFormProps {
@@ -46,7 +50,14 @@ export const DynamicDailyForm: React.FC<DynamicDailyFormProps> = ({
   };
   const currentDayFr = dayFrMap[dayNameFormatted] || dayNameFormatted;
 
-  // Matching group prayer events for today
+  // Meditation time range states
+  const [meditationStart, setMeditationStart] = useState("06:00");
+  const [meditationEnd, setMeditationEnd] = useState("06:37");
+
+  // Teaching input state
+  const [newTeachingTitle, setNewTeachingTitle] = useState("");
+  const [newTeachingSpeaker, setNewTeachingSpeaker] = useState("");
+
   const matchingPrayerEvents = config.priereDeGroupe.events.filter(
     (ev) => ev.dayOfWeek.toLowerCase() === currentDayFr.toLowerCase()
   );
@@ -55,9 +66,58 @@ export const DynamicDailyForm: React.FC<DynamicDailyFormProps> = ({
     onEntriesChange(updater(entries));
   };
 
+  const handleApplyMeditationTimeRange = () => {
+    if (!meditationStart || !meditationEnd) return;
+    const [sH, sM] = meditationStart.split(":").map(Number);
+    const [eH, eM] = meditationEnd.split(":").map(Number);
+
+    let diff = (eH * 60 + eM) - (sH * 60 + sM);
+    if (diff <= 0) diff += 24 * 60;
+
+    updateEntries((prev) => ({
+      ...prev,
+      meditation: { minutes: diff },
+    }));
+  };
+
+  const handleAddTeaching = () => {
+    if (!newTeachingTitle.trim()) return;
+
+    const currentList = entries.enseignements?.teachingsList || [];
+    const newItem: TeachingItem = {
+      id: `teach-${Date.now()}`,
+      title: newTeachingTitle.trim(),
+      speaker: newTeachingSpeaker.trim() || "Pasteur / Enseignant",
+    };
+
+    const updatedList = [...currentList, newItem];
+    updateEntries((prev) => ({
+      ...prev,
+      enseignements: {
+        teachingsCount: updatedList.length,
+        teachingsList: updatedList,
+      },
+    }));
+
+    setNewTeachingTitle("");
+    setNewTeachingSpeaker("");
+  };
+
+  const handleRemoveTeaching = (id: string) => {
+    const currentList = entries.enseignements?.teachingsList || [];
+    const updatedList = currentList.filter((item) => item.id !== id);
+    updateEntries((prev) => ({
+      ...prev,
+      enseignements: {
+        teachingsCount: updatedList.length,
+        teachingsList: updatedList,
+      },
+    }));
+  };
+
   return (
     <div className="space-y-6">
-      {/* 2. PRIÈRE DE GROUPE (Only shown if matching events today) */}
+      {/* 2. PRIÈRE DE GROUPE (Matching events today) */}
       {config.priereDeGroupe.enabled && matchingPrayerEvents.length > 0 && (
         <Card variant="gradient" className="space-y-4 border-amber-200/80">
           <div className="flex items-center gap-3">
@@ -69,68 +129,113 @@ export const DynamicDailyForm: React.FC<DynamicDailyFormProps> = ({
                 Prière de Groupe & Rassemblements ({currentDayFr})
               </h3>
               <p className="text-xs text-slate-500">
-                Validation de présence pour les programmes du jour
+                Validation de présence & horaires de participation aux événements du jour
               </p>
             </div>
           </div>
 
           <div className="space-y-3">
             {matchingPrayerEvents.map((ev) => {
-              const attended = entries.priereDeGroupe?.[ev.id] || false;
+              const rawEntry = entries.priereDeGroupe?.[ev.id];
+              const attended = typeof rawEntry === "object" ? rawEntry.participated : Boolean(rawEntry);
+              const startTime = typeof rawEntry === "object" ? rawEntry.startTime || "22:00" : "22:00";
+              const endTime = typeof rawEntry === "object" ? rawEntry.endTime || "04:30" : "04:30";
+
               return (
-                <div
-                  key={ev.id}
-                  className="p-3.5 rounded-xl bg-white border border-amber-200/60 flex items-center justify-between"
-                >
-                  <div>
-                    <p className="text-sm font-bold text-slate-900">
-                      As-tu participé à : {ev.name} ?
-                    </p>
-                    <p className="text-xs text-slate-500">
-                      {ev.dayOfWeek} {ev.time ? `à ${ev.time}` : ""}
-                    </p>
+                <div key={ev.id} className="p-4 rounded-2xl bg-white border border-amber-200/80 space-y-3 shadow-sm">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-slate-900">
+                        As-tu participé à : {ev.name} ?
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {ev.dayOfWeek} {ev.time ? `à ${ev.time}` : ""}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateEntries((prev) => ({
+                            ...prev,
+                            priereDeGroupe: {
+                              ...prev.priereDeGroupe,
+                              [ev.id]: { participated: true, startTime, endTime },
+                            },
+                          }))
+                        }
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                          attended
+                            ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/20"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                      >
+                        Oui ✓
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateEntries((prev) => ({
+                            ...prev,
+                            priereDeGroupe: {
+                              ...prev.priereDeGroupe,
+                              [ev.id]: { participated: false, startTime: "", endTime: "" },
+                            },
+                          }))
+                        }
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                          !attended && rawEntry !== undefined
+                            ? "bg-rose-600 text-white shadow-md"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                      >
+                        Non ✗
+                      </button>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateEntries((prev) => ({
-                          ...prev,
-                          priereDeGroupe: {
-                            ...prev.priereDeGroupe,
-                            [ev.id]: true,
-                          },
-                        }))
-                      }
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                        attended
-                          ? "bg-emerald-600 text-white shadow-md shadow-emerald-500/20"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
-                    >
-                      Oui ✓
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateEntries((prev) => ({
-                          ...prev,
-                          priereDeGroupe: {
-                            ...prev.priereDeGroupe,
-                            [ev.id]: false,
-                          },
-                        }))
-                      }
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                        !attended && entries.priereDeGroupe?.[ev.id] === false
-                          ? "bg-rose-600 text-white shadow-md"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
-                    >
-                      Non ✗
-                    </button>
-                  </div>
+                  {/* If Oui: prompt for Start Time and End Time */}
+                  {attended && (
+                    <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-amber-50/50 p-3 rounded-xl">
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-900 mb-1">De quelle heure (Heure de début)</label>
+                        <input
+                          type="time"
+                          value={startTime}
+                          onChange={(e) =>
+                            updateEntries((prev) => ({
+                              ...prev,
+                              priereDeGroupe: {
+                                ...prev.priereDeGroupe,
+                                [ev.id]: { participated: true, startTime: e.target.value, endTime },
+                              },
+                            }))
+                          }
+                          className="w-full p-2 bg-white border border-amber-200 rounded-xl text-xs font-bold text-slate-800 outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-900 mb-1">À quelle heure (Heure de fin)</label>
+                        <input
+                          type="time"
+                          value={endTime}
+                          onChange={(e) =>
+                            updateEntries((prev) => ({
+                              ...prev,
+                              priereDeGroupe: {
+                                ...prev.priereDeGroupe,
+                                [ev.id]: { participated: true, startTime, endTime: e.target.value },
+                              },
+                            }))
+                          }
+                          className="w-full p-2 bg-white border border-amber-200 rounded-xl text-xs font-bold text-slate-800 outline-none"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -176,13 +281,13 @@ export const DynamicDailyForm: React.FC<DynamicDailyFormProps> = ({
                 }))
               }
               className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-blue-900 outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="ex: 4 chapitres"
+              placeholder="ex: 7 chapitres"
             />
           </div>
         </Card>
       )}
 
-      {/* 4. MEDITATION */}
+      {/* 4. MEDITATION WITH FLEXIBLE START/END TIME SELECTOR */}
       {config.meditation.enabled && (
         <Card variant="gradient" className="space-y-4">
           <div className="flex items-center justify-between">
@@ -201,9 +306,43 @@ export const DynamicDailyForm: React.FC<DynamicDailyFormProps> = ({
             </div>
           </div>
 
+          {/* Time range selector for Meditation */}
+          <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-100 space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-900">
+              <Clock className="w-4 h-4 text-purple-600" />
+              <span>Choisir l'heure de début et l'heure de fin (ex: 06:00 à 06:37)</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">Heure de début</label>
+                <input
+                  type="time"
+                  value={meditationStart}
+                  onChange={(e) => setMeditationStart(e.target.value)}
+                  className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">Heure de fin</label>
+                <input
+                  type="time"
+                  value={meditationEnd}
+                  onChange={(e) => setMeditationEnd(e.target.value)}
+                  className="w-full p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none"
+                />
+              </div>
+
+              <Button variant="outline" size="sm" onClick={handleApplyMeditationTimeRange}>
+                Calculer la durée
+              </Button>
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-              Combien de temps as-tu médité aujourd'hui ? (en minutes)
+              Durée totale méditée aujourd'hui (Minutes)
             </label>
             <input
               type="number"
@@ -216,7 +355,6 @@ export const DynamicDailyForm: React.FC<DynamicDailyFormProps> = ({
                 }))
               }
               className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-purple-900 outline-none focus:ring-2 focus:ring-purple-500"
-              placeholder="ex: 15 min"
             />
           </div>
         </Card>
@@ -379,7 +517,79 @@ export const DynamicDailyForm: React.FC<DynamicDailyFormProps> = ({
         </Card>
       )}
 
-      {/* 7. CARACTERE & DISCIPLINE */}
+      {/* 7. ENSEIGNEMENTS WITH TITLE AND SPEAKER INPUTS */}
+      {config.enseignements.enabled && (
+        <Card variant="gradient" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-sky-50 text-sky-700">
+                <Headphones className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold font-heading text-slate-900">Enseignements Écoutés</h3>
+                <p className="text-xs text-slate-500">Enregistrez les prédications, le nom de l'enseignant et le titre</p>
+              </div>
+            </div>
+
+            <Badge variant="info" size="sm">
+              {entries.enseignements?.teachingsList?.length || entries.enseignements?.teachingsCount || 0} écouté(s)
+            </Badge>
+          </div>
+
+          {/* Add Teaching Form */}
+          <div className="p-4 rounded-2xl bg-sky-50/70 border border-sky-100 space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-sky-900 mb-1">Titre de l'enseignement</label>
+                <input
+                  type="text"
+                  value={newTeachingTitle}
+                  onChange={(e) => setNewTeachingTitle(e.target.value)}
+                  placeholder="Ex: La pratique de l'intercession"
+                  className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-sky-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-sky-900 mb-1">Nom de l'enseignant / Prédicateur</label>
+                <input
+                  type="text"
+                  value={newTeachingSpeaker}
+                  onChange={(e) => setNewTeachingSpeaker(e.target.value)}
+                  placeholder="Ex: Pasteur ZTF / Watchman Nee"
+                  className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs outline-none focus:ring-2 focus:ring-sky-500"
+                />
+              </div>
+            </div>
+
+            <Button variant="gold" size="sm" onClick={handleAddTeaching} icon={<Plus className="w-4 h-4" />}>
+              Ajouter cet enseignement
+            </Button>
+          </div>
+
+          {/* Enseignements List */}
+          {entries.enseignements?.teachingsList && entries.enseignements.teachingsList.length > 0 && (
+            <div className="space-y-2 pt-1">
+              {entries.enseignements.teachingsList.map((t, idx) => (
+                <div key={t.id} className="p-3 rounded-xl bg-white border border-slate-200 flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-slate-900">{idx + 1}. {t.title}</p>
+                    <p className="text-[11px] text-sky-800 font-medium">Enseignant : {t.speaker}</p>
+                  </div>
+                  <button
+                    onClick={() => handleRemoveTeaching(t.id)}
+                    className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* 8. CARACTERE & DISCIPLINE */}
       {config.caractere.enabled && config.caractere.axes.length > 0 && (
         <Card variant="gradient" className="space-y-4">
           <div className="flex items-center gap-3">
@@ -425,178 +635,6 @@ export const DynamicDailyForm: React.FC<DynamicDailyFormProps> = ({
                 </div>
               );
             })}
-          </div>
-        </Card>
-      )}
-
-      {/* 8. OBJECTIFS SUR-MESURE */}
-      {config.custom.enabled && config.custom.items.length > 0 && (
-        <Card variant="gradient" className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-700">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold font-heading text-slate-900">
-                Objectifs Personnalisés Sur-Mesure
-              </h3>
-              <p className="text-xs text-slate-500">
-                Questions sur-mesure définies dans vos objectifs
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {config.custom.items.map((item) => {
-              const val = entries.custom?.[item.id]?.value;
-              return (
-                <div key={item.id} className="p-3.5 rounded-xl bg-white border border-slate-200/80 space-y-2">
-                  <p className="text-xs font-bold text-slate-900">{item.title}</p>
-                  <p className="text-xs text-slate-600 font-medium">{item.question}</p>
-
-                  {item.responseType === "boolean" && (
-                    <div className="flex items-center gap-2 pt-1">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          updateEntries((prev) => ({
-                            ...prev,
-                            custom: {
-                              ...prev.custom,
-                              [item.id]: { value: true },
-                            },
-                          }))
-                        }
-                        className={`px-4 py-2 rounded-xl text-xs font-bold ${
-                          val === true
-                            ? "bg-emerald-600 text-white"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                      >
-                        Oui ✓
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          updateEntries((prev) => ({
-                            ...prev,
-                            custom: {
-                              ...prev.custom,
-                              [item.id]: { value: false },
-                            },
-                          }))
-                        }
-                        className={`px-4 py-2 rounded-xl text-xs font-bold ${
-                          val === false
-                            ? "bg-rose-600 text-white"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                        }`}
-                      >
-                        Non ✗
-                      </button>
-                    </div>
-                  )}
-
-                  {item.responseType === "number" && (
-                    <input
-                      type="number"
-                      value={(val as number) || 0}
-                      onChange={(e) =>
-                        updateEntries((prev) => ({
-                          ...prev,
-                          custom: {
-                            ...prev.custom,
-                            [item.id]: { value: Number(e.target.value) },
-                          },
-                        }))
-                      }
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none"
-                    />
-                  )}
-
-                  {item.responseType === "text" && (
-                    <input
-                      type="text"
-                      value={(val as string) || ""}
-                      onChange={(e) =>
-                        updateEntries((prev) => ({
-                          ...prev,
-                          custom: {
-                            ...prev.custom,
-                            [item.id]: { value: e.target.value },
-                          },
-                        }))
-                      }
-                      placeholder="Votre réponse..."
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none"
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      )}
-
-      {/* OTHER ACTIVE CATEGORY BLOCS */}
-      {config.visitesPastorales.enabled && (
-        <Card variant="gradient" className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-rose-50 text-rose-700">
-              <Users className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold font-heading text-slate-900">Visites Pastorales & Fraternelles</h3>
-              <p className="text-xs text-slate-500">Objectif mensuel : {config.visitesPastorales.monthlyVisitsCount} visites</p>
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-              Combien de visites pastorales/fraternelles as-tu effectuées aujourd'hui ?
-            </label>
-            <input
-              type="number"
-              min={0}
-              value={entries.visitesPastorales?.visitsCount || 0}
-              onChange={(e) =>
-                updateEntries((prev) => ({
-                  ...prev,
-                  visitesPastorales: { visitsCount: Number(e.target.value) },
-                }))
-              }
-              className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-rose-900 outline-none"
-            />
-          </div>
-        </Card>
-      )}
-
-      {config.enseignements.enabled && (
-        <Card variant="gradient" className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-sky-50 text-sky-700">
-              <Headphones className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold font-heading text-slate-900">Enseignements Écoutés</h3>
-              <p className="text-xs text-slate-500">Objectif hebdo : {config.enseignements.weeklyTeachingsCount} prédications</p>
-            </div>
-          </div>
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-              Combien d'enseignements/prédications as-tu écoutés aujourd'hui ?
-            </label>
-            <input
-              type="number"
-              min={0}
-              value={entries.enseignements?.teachingsCount || 0}
-              onChange={(e) =>
-                updateEntries((prev) => ({
-                  ...prev,
-                  enseignements: { teachingsCount: Number(e.target.value) },
-                }))
-              }
-              className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm font-bold text-sky-900 outline-none"
-            />
           </div>
         </Card>
       )}

@@ -11,6 +11,7 @@ import {
   FileText,
   User,
   HelpCircle,
+  BookOpen,
   LogOut,
   ChevronRight,
   ShieldCheck,
@@ -43,6 +44,11 @@ const navItems = [
     label: "Aide & FAQ",
     href: "/aide",
     icon: HelpCircle,
+  },
+  {
+    label: "Planifier son Année",
+    href: "/cours-planification",
+    icon: BookOpen,
   },
   {
     label: "Profil",
@@ -158,7 +164,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="p-6 border-t border-slate-200/60 bg-white/50">
           <div className="p-3 rounded-xl bg-blue-50/60 border border-blue-100 mb-4 flex items-center gap-2 text-xs text-blue-900">
             <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
-            <span className="font-medium text-[11px]">Redevabilité active avec le FD</span>
+            <span className="font-medium text-[11px]">Suivi actif avec le FD</span>
           </div>
 
           <button

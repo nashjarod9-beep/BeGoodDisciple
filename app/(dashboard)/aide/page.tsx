@@ -36,9 +36,9 @@ export default function HelpFaqPage() {
       answer: "Sur la page 'Suivi', vous trouverez le chronomètre. Cliquez sur 'Démarrer la prière'. À l'arrêt, une pop-up vous propose d'enregistrer le temps écoulé ainsi que votre principal fardeau/sujet de prière.",
     },
     {
-      category: "Intelligence Artificielle DeepSeek",
-      question: "À quoi sert l'IA DeepSeek dans la plateforme ?",
-      answer: "L'IA DeepSeek apporte un accompagnement pastoral bienveillant : elle rédige les synthèses de vos comptes rendus, propose des encouragements quotidiens sur le dashboard, détecte les baisses de rythme pour vous conseiller doucement, et répond à vos questions sur l'Assistant BGD.",
+      category: "Assistant Intelligence Artificielle",
+      question: "À quoi sert l'Assistant IA dans la plateforme ?",
+      answer: "L'Assistant IA apporte un accompagnement pastoral bienveillant : il rédige les synthèses de vos comptes rendus, propose des encouragements quotidiens sur le dashboard, détecte les baisses de rythme pour vous conseiller doucement, et répond à vos questions sur l'Assistant BGD.",
     },
   ];
 
@@ -74,7 +74,7 @@ export default function HelpFaqPage() {
 
         <Card variant="gradient" className="space-y-2 p-5">
           <Sparkles className="w-6 h-6 text-purple-600" />
-          <h4 className="text-sm font-bold font-heading text-slate-900">IA Pastorale DeepSeek</h4>
+          <h4 className="text-sm font-bold font-heading text-slate-900">IA Pastorale & Conseils</h4>
           <p className="text-xs text-slate-500">Synthèses encourageantes, rappels doux et assistant conversationnel RAG.</p>
         </Card>
       </div>
